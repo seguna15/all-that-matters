@@ -17,12 +17,48 @@ export const fetchAllProducts = async (req,res, next) => {
     })
 }
 
+
+/**
+*   @desc    Fetch  product by Id
+*   @route  POST /api/v1/products/:id
+*   @access Private/Admin
+*/
+export const fetchProduct = async (req,res, next) => {
+    const id = req.params.id;
+
+    //get product from redis cache
+    let product = await redis.get(`product:${id}`)
+    if(product){
+        return res.status(200).json({
+          status: true,
+          message: "Product fetched successfully",
+          product: JSON.parse(product),
+        });
+    }
+
+    //get product from db instead
+    product = await Product.findById(id);
+    if(!product){
+        next(new ErrorHandler("Product not found", 404));
+    }
+
+    //update cache
+    await redis.set(`product:${product._id}`, JSON.stringify(product), "EX", 7 * 24 * 60 * 60);
+
+    //return response
+    res.status(200).json({
+        status: true,
+        message: "Product fetched successfully",
+        product
+    })
+}
+
 /**
 *   @desc   Fetch featured products
 *   @route  GET /api/v1/products/featured-products
 *   @access Public
 */
-export const fetchFeaturedProducts = async (req, res) => {
+export const fetchFeaturedProducts = async (req, res, next) => {
     let featuredProducts = await redis.get("featured_products")
     if(featuredProducts){
         return res.status(200).json({
@@ -35,10 +71,7 @@ export const fetchFeaturedProducts = async (req, res) => {
     featuredProducts = await Product.find({isFeatured: true}).lean();
 
     if(!featuredProducts) {
-        return res.status(404).json({
-            success: false,
-            message: "No featured products found",
-        })
+        next(new ErrorHandler("No featured products found"));
     }
 
     //store in redis for feature quick access
@@ -81,7 +114,7 @@ export const getProductsByCategory = async (req, res) => {
 */
 export const createProduct = async (req, res, next) => {
     const convertedImages = req.files.map((file) => file.path);
-    const {name, description, price, quantity} = req.body;
+    const {name, description, price, quantity, category} = req.body;
 
     const product = await Product.create({
         name,
@@ -89,13 +122,11 @@ export const createProduct = async (req, res, next) => {
         price,
         quantity,
         images: convertedImages,
+        category
     })
 
     if(!product) {
-        return res.status(400).json({
-            success: false,
-            message: "Oops we could not create products"
-        })
+        next(new ErrorHandler("Product not created", 400))
     }
 
     return res.status(201).json({
@@ -105,6 +136,61 @@ export const createProduct = async (req, res, next) => {
     })
 }
 
+/**
+*   @desc   create product
+*   @route  Patch /api/v1/products/
+*   @access Private/Admin
+*/
+export const updateProduct = async (req, res, next) => {
+    const id = req.params.id;
+
+    const convertedImages = req.files?.length > 0 ? req.files.map((file) => file.path) : null;
+   
+    const {name, description, price, quantity, category} = req.body;
+    
+    const product = await Product.findById(id);
+    if (!product) {
+      next(new ErrorHandler("Product not found", 404));
+    }
+
+    let updatedProduct;
+    if(convertedImages) {
+        product.images.forEach((image) => {
+          fs.unlinkSync(image, (err) => {
+            console.log(err);
+            next(new ErrorHandler("Image could not be deleted"));
+          });
+        });
+
+        product.name = name;
+        product.description = description;
+        product.price = price;
+        product.quantity = quantity;
+        product.category = category;
+        product.images = convertedImages;
+    
+        updatedProduct = await product.save()
+    }else {
+        product.name = name;
+        product.description = description;
+        product.price = price;
+        product.quantity = quantity;
+        product.category = category;
+        updatedProduct = await product.save();
+    }
+   
+    const cachedProduct = await redis.get(`product:${id}`, )
+
+    if(cachedProduct){
+        await redis.set(`product:${id}`, JSON.stringify(updatedProduct));
+    }
+ 
+    return res.status(201).json({
+        success: true,
+        message: "Product created successfully",
+        product: updatedProduct,
+    })
+}
 
 
 /**
@@ -115,7 +201,9 @@ export const createProduct = async (req, res, next) => {
 export const deleteProduct = async (req, res, next) => {
     const id = req.params.id;
     const product = await Product.findById(id);
-
+    if(product.quantity > 0) {
+        next(new ErrorHandler("You cannot delete a product with active units", 400))
+    }
     if(product.images){
         product.images.forEach(image => {
             fs.unlinkSync(image, (err) => {
@@ -125,7 +213,12 @@ export const deleteProduct = async (req, res, next) => {
         })
     }
 
+    await redis.del(`product:${id}`);
     const deletedProduct = await Product.findByIdAndDelete(id);
+    await updateFeaturedProductsCache()
+    if(!deletedProduct) {
+        next(new ErrorHandler("product could not be deleted"))
+    }
 
     return res.status(200).json({
         success: true,
@@ -133,6 +226,37 @@ export const deleteProduct = async (req, res, next) => {
         product: deletedProduct
     })
     
+}
+
+/**
+*   @desc   soft delete a product
+*   @route  Patch /api/v1/products/toggle-activated
+*   @access Private/Admin
+*/
+export const toggleActivated = async (req, res, next) => {
+    const id = req.params.id;
+    const product = await Product.findById(id);
+
+    let updatedProduct;
+    if(product) {
+        await redis.del(`product:${id}`);
+        product.isActivated = !product.isActivated;
+        if(product.isFeatured) {
+            product.isFeatured = false;
+            updatedProduct = await product.save();
+            await updateFeaturedProductsCache();
+        }else{
+            updatedProduct = await product.save();
+        }
+        
+         return res.status(200).json({
+           success: true,
+           message: "Product activation status changed",
+           product: updatedProduct,
+         });
+    }
+    
+    next(new ErrorHandler("product could not found", 404));
 }
 
 
@@ -168,7 +292,7 @@ export const getRecommendedProducts = async (req, res, next) => {
 *   @route  Patch /api/v1/products/toggle-featured
 *   @access Private/Admin
 */
-export const toggleFeature = async (req,res, next) => {
+export const toggleFeatured = async (req,res, next) => {
     const id = req.params.id;
     const product = await Product.findById(id);
     if(product) {
@@ -176,6 +300,11 @@ export const toggleFeature = async (req,res, next) => {
         const updatedProduct = await product.save();
 
         await updateFeaturedProductsCache();
+        return res.status(200).json({
+            success: true,
+            message: false,
+            product: updatedProduct
+        })
     }
 
     next (new ErrorHandler("No Product found", 404));
