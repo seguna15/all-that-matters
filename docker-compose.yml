@@ -1,0 +1,42 @@
+services:
+  frontend: 
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - mern
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    networks:
+      - mern
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:latest
+    ports: 
+      - "2717:27017"
+    networks:
+      - mern
+    volumes:
+      - mongo-data:/data/db
+  redis:
+    image: redis:7
+    command: bash -c "redis-server --appendonly yes --requirepass password"
+    ports:
+      - "6380:6379"
+    networks:
+      - mern
+    volumes:
+      - redis-data:/data
+
+networks:
+  mern:
+    driver: bridge
+  
+volumes:
+  mongo-data:
+    driver: local
+  redis-data:
+    driver: local
