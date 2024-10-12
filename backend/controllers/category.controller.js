@@ -1,4 +1,5 @@
 import Category from "../models/category.model.js";
+import { deleteImage } from "../utils/deleteImage.util.js";
 import ErrorHandler from "../utils/ErrorHandler.util.js";
 
 /**
@@ -75,25 +76,48 @@ export const getCategory = async (req,res) => {
  * @access Private/Admin
 */
 export const updateCategory = async (req, res) => {
-    
+    const convertedImage = req.file ? req.file.path : null;
     const { name } = req.body;
 
     const id = req.params.id;
+    const category = await Category.findById(id);
 
-    const category = await Category.findByIdAndUpdate(id, {
-      name,
-    },{
-        new: true
-    });
-
-    if (!category) {
+    if(!category){
       throw new ErrorHandler("Category not found", 404);
     }
 
+    let updatedCategory;
+
+    if(convertedImage){
+      await deleteImage(category.image);
+      updatedCategory = await Category.findByIdAndUpdate(
+        id,
+        {
+          name,
+          image: convertedImage,
+        },
+        {
+          new: true,
+        }
+      );
+    } else {
+      updatedCategory = await Category.findByIdAndUpdate(
+        id,
+        {
+          name,
+        },
+        {
+          new: true,
+        }
+      );
+    }
+    
+
+   
    return res.status(200).json({
         success: true,
         message: "Category updated successfully",
-        category,
+        category: updatedCategory,
     })
 }
 
@@ -111,6 +135,8 @@ export const deleteCategory = async (req, res) => {
     if (!category) {
       throw new ErrorHandler("Category not found", 404);
     }
+
+    await deleteImage(category.image)
 
     return res.status(200).json({
       success: true,

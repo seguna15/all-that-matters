@@ -1,6 +1,7 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs"
+import ErrorHandler from "../utils/ErrorHandler.util.js";
 
 
 const storage = multer.diskStorage({
@@ -29,13 +30,12 @@ const fileFilter = (req, file, cb) =>  {
     if (extName && mimetype) {
       return cb(null, true);
     } else {
-      cb("Error: jpeg | png | jpg | webp only");
+      return cb(new ErrorHandler("Error: jpeg | png | jpg | webp only", 400));
     }
   }
-
   const onError = (err, next) => {
     console.log('error', err);
-    next(err);
+    next(new ErrorHandler(err, 400));
   }
   
 // Init multer storage engine

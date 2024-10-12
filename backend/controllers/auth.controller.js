@@ -6,7 +6,6 @@ import { generateAccessTokens, generateTokens, setAccessTokenCookies, setCookies
 import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mail/email.js";
 import { OAuth2Client } from "google-auth-library";
 import { redis } from "../config/redis.config.js";
-import { setUserCart } from "../utils/redis.util.js";
 
 /**
 *   @desc   Create new user

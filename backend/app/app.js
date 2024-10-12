@@ -9,7 +9,7 @@ import userRoute from "../routes/user.routes.js";
 import productRoute from "../routes/product.routes.js";
 import cartRoute from "../routes/cart.routes.js";
 import couponRoute from "../routes/coupon.routes.js";
-import categoriesRoutes from "../routes/caegory.routes.js";
+import categoriesRoutes from "../routes/category.routes.js";
 
 //db Connect
 dbConnect();

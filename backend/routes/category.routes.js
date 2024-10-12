@@ -17,7 +17,7 @@ categoriesRoutes
   )
   .get("/", catchAsyncError(getCategories))
   .get("/:id", catchAsyncError(getCategory))
-  .put("/:id/update", protectedRoute, adminRoute, catchAsyncError(updateCategory))
-  .delete("/:id/delete", protectedRoute, adminRoute, catchAsyncError(deleteCategory));
+  .put("/:id", protectedRoute, adminRoute, upload.single("file"), catchAsyncError(updateCategory))
+  .delete("/:id", protectedRoute, adminRoute, catchAsyncError(deleteCategory));
 
 export default categoriesRoutes;

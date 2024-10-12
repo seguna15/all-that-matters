@@ -1,7 +1,7 @@
 import { redis } from "../config/redis.config.js";
 import Category from "../models/category.model.js";
 import Product from "../models/product.model.js"
-import deleteImages from "../utils/deleteImage.util.js";
+import {deleteImages} from "../utils/deleteImage.util.js";
 import ErrorHandler from "../utils/ErrorHandler.util.js"
 
 
@@ -18,7 +18,6 @@ export const fetchAllProducts = async (req,res) => {
         products
     })
 }
-
 
 /**
 *   @desc    Fetch  product by Id
@@ -124,6 +123,7 @@ export const createProduct = async (req, res) => {
         await deleteImages(convertedImages)
         throw new ErrorHandler("Product already exist", 409);
     }
+
     const categoryExist = await Category.findOne({name: category}) 
 
     if(!categoryExist){
@@ -163,69 +163,71 @@ export const createProduct = async (req, res) => {
 */
 export const updateProduct = async (req, res) => {
     const id = req.params.id;
-
-    const convertedImages = req.files?.length > 0 ? req.files.map((file) => file.path) : null;
     
+    const convertedImages = req?.files?.length > 0 ? req?.files?.map((file) => file?.path) : null;
+  
     const {name, description, price, quantity, category} = req.body;
 
     const categoryExist = await Category.findOne({name: category.toLowerCase()});
-    console.log(categoryExist)
+   
     if(!categoryExist){
         await deleteImages(convertedImages);
         throw new ErrorHandler("Category not found", 404);
     }
-    
     const product = await Product.findById(id);
     
-    if (!product) {
-        await deleteImages(convertedImages);
-        throw new ErrorHandler("Product not found", 404);
-    }
-     
     let updatedProduct;
-   
     if(convertedImages) {
-        await deleteImages(product.images)
-        product.name = name;
-        product.description = description;
-        product.price = price;
-        product.quantity = quantity;
-        product.images = convertedImages;
-        
-    }else {
-        product.name = name;
-        product.description = description;
-        product.price = price;
-        product.quantity = quantity;        
+        await deleteImages(product.images);
+        updatedProduct = await Product.findByIdAndUpdate(
+          id,
+          {
+            name,
+            description,
+            price,
+            quantity,
+            category,
+            images: convertedImages,
+          },
+          { new: true }
+        );
+    }else{
+         updatedProduct = await Product.findByIdAndUpdate(
+           id,
+           {
+             name,
+             description,
+             price,
+             quantity,
+             category,
+           },
+           { new: true }
+         );
     }
-    
-    if (category.toLowerCase() !== product.category) {
-
-        //find previous category
+  
+    //remove from  old category 
+   
+    if (product.category !== updatedProduct.category){
         const formerCategory = await Category.findOne({name: product.category});
-        //filter product array
-        const newProductArray = formerCategory.products.filter(item => item.toString() !== product._id.toString());
-        //set product array
-        formerCategory.products = newProductArray
-        //change category
-        product.category = category;
-        //push product into new category
+        const newProductArray = formerCategory.products.filter((item) => item.toString() !== updatedProduct._id.toString());
+        formerCategory.products = newProductArray;
+        await formerCategory.save();
         categoryExist.products.push(product._id);
-        
+        await categoryExist.save();
     }
-    
-    updatedProduct = await product.save();
-    const cachedProduct = await redis.get(`product:${id}`, )
+      
+
+    const cachedProduct = await redis.get(`product:${id}`)
 
     if(cachedProduct){
         await redis.set(`product:${id}`, JSON.stringify(updatedProduct));
-    }
- 
+    } 
+
     return res.status(201).json({
-        success: true,
-        message: "Product created successfully",
-        product: updatedProduct,
-    })
+    success: true,
+    message: "Product updated successfully",
+    product: updatedProduct,
+    });
 }
 
 /**
@@ -236,32 +238,33 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     const id = req.params.id;
     const product = await Product.findById(id);
-    if(product.quantity > 0) {
+
+    if(!product) {
+        throw new ErrorHandler("Product not found", 400)
+    }
+
+    /* if(product.quantity > 0) {
         throw new ErrorHandler("You cannot delete a product with active units", 400)
-    }
-
-    if(product.images){
-        await deleteImages(product.images)
-        product.images.forEach(image => {
-            fs.unlinkSync(image, (err) => {
-                console.log(err)
-                throw new ErrorHandler("Image could not be deleted")
-            })
-        })
-    }
-
-    await redis.del(`product:${id}`);
-    const deletedProduct = await Product.findByIdAndDelete(id);
-   
-
-    /* if(deleteProduct) {
-      //delete product from category
     } */
-    await updateFeaturedProductsCache()
+
+    
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
     if(!deletedProduct) {
         throw new ErrorHandler("product could not be deleted")
     }
 
+    await redis.del(`product:${id}`);
+    await deleteImages(product?.images);
+    const category = await Category.findOne({name: product?.category});
+    const newProductArray = category.products.filter(
+    (item) => item.toString() !== product._id.toString()
+    );
+    category.products = newProductArray;
+    await category.save();
+
+    await updateFeaturedProductsCache()
+    
     return res.status(200).json({
         success: true,
         message: "Deleted successfully",
