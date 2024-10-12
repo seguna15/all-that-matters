@@ -25,10 +25,50 @@ export const getUserProfile = async (req,res, next) => {
 }
 
 /**
-*   @desc   Fetch admin profile
-*   @route  POST /api/v1/users/get-admin-profile
-*   @access Private/Admin
-*/
+ * @desc Get all customers 
+ * @route GET /api/v1/users/customers
+ * @access Private
+ */
+export const getAllCustomers = async (req, res) => {
+  const customers = await User.find({isAdmin: false})
+
+  return res.status(200).send({
+    success: true,
+    message: "Users fetched successfully",
+    customers
+  })
+}
+
+
+/**
+ * @desc Get user profile
+ * @route PATCH /api/v1/users/update/shipping
+ * @access Private
+ */
+export const updateShippingAddress = async (req, res) => {
+  const {firstName, lastName, address, city, postalCode, province, country, phoneNumber} = req.body;
+
+  //find user
+  const user = await User.findByIdAndUpdate(req.userAuthId, {
+    shippingAddress: {
+      firstName,
+      lastName,
+      address,
+      city,
+      postalCode,
+      province,
+      country,
+      phoneNumber,
+    },
+    hasShippingAddress: true
+  }, {new: true});
+
+  return res.status(201).json({
+    success: true,
+    message: "User shipping address updated successfully",
+    user
+  })
+}
 
 
 

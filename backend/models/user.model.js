@@ -12,25 +12,18 @@ const userSchema = new mongoose.Schema(
       required: [true, "Email is required"],
       unique: true,
       lowercase: true,
-      trim: true
+      trim: true,
     },
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength: [6, "Password must be at least 6 characters long"]
+      minlength: [6, "Password must be at least 6 characters long"],
     },
-    cartItems: [
-        {
-            quantity: {
-                type: Number,
-                default: 1,
-            },
-            product: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Product"
-            }
-            
-        }
+    wishList: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
     ],
     lastLogin: {
       type: Date,
@@ -48,7 +41,36 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "local",
     },
-    
+    hasShippingAddress: {
+      type: Boolean,
+      default: false,
+    },
+    shippingAddress: {
+      firstName: {
+        type: String,
+      },
+      lastName: {
+        type: String,
+      },
+      address: {
+        type: String,
+      },
+      city: {
+        type: String,
+      },
+      postalCode: {
+        type: String,
+      },
+      province: {
+        type: String,
+      },
+      country: {
+        type: String,
+      },
+      phoneNumber: {
+        type: String,
+      },
+    },
     resetPasswordToken: String,
     resetPasswordExpiresAt: Date,
     verificationToken: String,

@@ -29,7 +29,7 @@ const fileFilter = (req, file, cb) =>  {
     if (extName && mimetype) {
       return cb(null, true);
     } else {
-      cb("Error: jpeg | png | jpg | webpi only");
+      cb("Error: jpeg | png | jpg | webp only");
     }
   }
 

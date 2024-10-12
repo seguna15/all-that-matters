@@ -7,6 +7,9 @@ import globalErrHandler from "../middlewares/globalErrorHandler.middleware.js";
 import authRoute from "../routes/auth.routes.js";
 import userRoute from "../routes/user.routes.js";
 import productRoute from "../routes/product.routes.js";
+import cartRoute from "../routes/cart.routes.js";
+import couponRoute from "../routes/coupon.routes.js";
+import categoriesRoutes from "../routes/caegory.routes.js";
 
 //db Connect
 dbConnect();
@@ -30,12 +33,12 @@ const API_VERSION = process.env.API_VERSION
 
 app.use(`${API_VERSION}/uploads`, express.static("uploads/"));
 
-
-
-
 app.use(`${API_VERSION}/auth`, authRoute);
 app.use(`${API_VERSION}/users`, userRoute);
 app.use(`${API_VERSION}/products`, productRoute);
+app.use(`${API_VERSION}/carts`, cartRoute)
+app.use(`${API_VERSION}/coupons`, couponRoute)
+app.use(`${API_VERSION}/categories`, categoriesRoutes)
 
 
 //err middleware

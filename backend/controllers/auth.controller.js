@@ -6,22 +6,23 @@ import { generateAccessTokens, generateTokens, setAccessTokenCookies, setCookies
 import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mail/email.js";
 import { OAuth2Client } from "google-auth-library";
 import { redis } from "../config/redis.config.js";
+import { setUserCart } from "../utils/redis.util.js";
 
 /**
 *   @desc   Create new user
 *   @route  POST /api/v1/auth/register
 *   @access Public
 */
-export const register =  async (req, res, next) => {
+export const register =  async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password)
-    next(new ErrorHandler("Kindly fill name, email & password", 400));
+   throw new ErrorHandler("Kindly fill name, email & password", 400);
 
   // check if user exist
   const userExist = await User.findOne({ email });
   if (userExist) {
-    next(new ErrorHandler("User already exists", 409));
+   throw new ErrorHandler("User already exists", 409);
   }
 
   
@@ -39,13 +40,13 @@ export const register =  async (req, res, next) => {
   });
 
   if (!user) {
-    next(new ErrorHandler("User could not be created"));
+   throw new ErrorHandler("User could not be created");
   }
 
   await user.save();
 
   //send verification email
-  await sendVerificationEmail(user.email, verificationToken, next);
+  await sendVerificationEmail(user.email, verificationToken);
 
   return res.status(201).json({
     success: true,
@@ -63,7 +64,7 @@ export const register =  async (req, res, next) => {
 *   @route  POST /api/v1/auth/verify-email
 *   @access Public
 */
-export const verifyEmail = async (req, res, next) => {
+export const verifyEmail = async (req, res) => {
     const {code} = req.body;
 
     const user = await User.findOne({
@@ -71,7 +72,7 @@ export const verifyEmail = async (req, res, next) => {
         verificationTokenExpiresAt: {$gt: Date.now()}
     })
 
-    if(!user) next(new ErrorHandler("Invalid or expired verification code", 400));
+    if(!user)throw new ErrorHandler("Invalid or expired verification code", 400);
 
     user.isVerified = true;
     user.verificationToken = undefined;
@@ -79,7 +80,7 @@ export const verifyEmail = async (req, res, next) => {
 
     await user.save();
 
-    await sendWelcomeEmail(user.email, user.name, `${process.env.CLIENT_URL}/auth/login`, next)
+    await sendWelcomeEmail(user.email, user.name, `${process.env.CLIENT_URL}/auth/login`)
 
     return res.status(200).json({
       success: true,
@@ -97,7 +98,7 @@ export const verifyEmail = async (req, res, next) => {
 *   @route  POST /api/v1/auth/login
 *   @access Public
 */
-export const login =  async (req, res, next) => {
+export const login =  async (req, res) => {
   
     const { email, password } = req.body;
 
@@ -107,8 +108,9 @@ export const login =  async (req, res, next) => {
     if (userFound && (await userFound.comparePassword(password))) {
       // generate access token
       const {accessToken, refreshToken} = generateTokens(userFound._id);
-      await storeRefreshToken(userFound._id, refreshToken);
       userFound.lastLogin = new Date();
+
+      await storeRefreshToken(userFound._id, refreshToken);
       await userFound.save();
       setCookies(res, accessToken, refreshToken)
       return res
@@ -123,7 +125,7 @@ export const login =  async (req, res, next) => {
         });
     }
 
-    next(new ErrorHandler("Invalid login credential", 403));
+   throw new ErrorHandler("Invalid login credential", 403);
   
 }
 
@@ -133,13 +135,13 @@ export const login =  async (req, res, next) => {
 *   @route  POST /api/v1/auth/logout
 *   @access Public
 */
-export const logout =  async (req, res, next) => {
+export const logout =  async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   
   //if no cookie comes with the request logout the user
   if (refreshToken) {
     const decoded = verifyToken(refreshToken, process.env.JWT_REFRESH_KEY);
-    console.log(decoded)
+   
     await redis.del(`refresh_token:${decoded.userId}`)
   }
 
@@ -157,11 +159,11 @@ export const logout =  async (req, res, next) => {
 *   @route  POST /api/v1/auth/refresh
 *   @access Public
 */
-export const refresh = async (req, res, next) => {
+export const refresh = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   //return forbidden if cookies is not present
   if (!refreshToken) {
-      next(new ErrorHandler("No cookie found", 403))
+     throw new ErrorHandler("No cookie found", 403)
   }
 
   const decoded = verifyToken(refreshToken, process.env.JWT_REFRESH_KEY);
@@ -182,13 +184,13 @@ export const refresh = async (req, res, next) => {
 *   @route  POST /api/v1/auth/forgot-password
 *   @access Public
 */
-export const forgotPassword = async(req, res, next) => {
+export const forgotPassword = async(req, res) => {
     const {email} = req.body;
     
     const user = await User.findOne({email});
 
     if(!user){
-       next(new ErrorHandler("User not found", 404));
+      throw new ErrorHandler("User not found", 404);
     }
 
     const resetToken =  crypto.randomBytes(20).toString("hex");
@@ -214,7 +216,7 @@ export const forgotPassword = async(req, res, next) => {
 *   @route  POST /api/v1/auth/reset-password/:token
 *   @access Public
 */
-export const resetPassword = async(req, res, next) => {
+export const resetPassword = async(req, res) => {
     const {token} = req.params;
     const {password} = req.body;
     console.log(password)
@@ -223,7 +225,7 @@ export const resetPassword = async(req, res, next) => {
     });
     
     //return error if user is not found
-    if(!user) next(new ErrorHandler("User not found", 404));
+    if(!user)throw new ErrorHandler("User not found", 404);
 
    
     //hash password
@@ -246,7 +248,7 @@ export const resetPassword = async(req, res, next) => {
 
 
 //Google OAuth Request
-export const googleOathRequest = async (req, res, next) => {
+export const googleOathRequest = async (req, res) => {
   
   res.header("Access-Control-Allow-Origin", process.env.CLIENT_URL);
   res.header("Access-Control-Allow-Credentials", "true");
@@ -272,7 +274,7 @@ export const googleOathRequest = async (req, res, next) => {
 
 
 //Google OAuth callback
-export const googleOAuth = async (req, res, next) => {
+export const googleOAuth = async (req, res) => {
   const code = req.query.code;
   
   try {
@@ -286,7 +288,6 @@ export const googleOAuth = async (req, res, next) => {
     await oAuth2Client.setCredentials(response.tokens);
    
     const user = oAuth2Client.credentials;
-    
     
     const ticket = await oAuth2Client.verifyIdToken({idToken: user.id_token, audience: process.env.GOOGLE_CLIENT_ID});
     const payload = ticket.getPayload();
@@ -331,7 +332,7 @@ export const googleOAuth = async (req, res, next) => {
 *   @route  POST /api/v1/auth/google-auth-successful/:email
 *   @access Public
 */
-export const onOauthSuccess = async (req,  res, next) => {
+export const onOauthSuccess = async (req,  res) => {
   
   const { email } = req.body;
 
@@ -358,6 +359,5 @@ export const onOauthSuccess = async (req,  res, next) => {
       });
   }
 
-
-  next(new ErrorHandler("Invalid login credential", 403));
+ throw new ErrorHandler("Invalid login credential", 403);
 };

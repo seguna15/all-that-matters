@@ -4,7 +4,7 @@ import { PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE, VERIF
 import { transporter } from "./nodemailer.config.js";
 
 
-export const sendVerificationEmail = async (recipientMail, verificationToken, next) => {
+export const sendVerificationEmail = async (recipientMail, verificationToken ) => {
 
     
     try {
@@ -21,11 +21,11 @@ export const sendVerificationEmail = async (recipientMail, verificationToken, ne
 
         
     } catch (error) {
-        next(new ErrorHandler(`Email verification could not be sent: ${error}`, 500))
+       throw new ErrorHandler(`Email verification could not be sent: ${error}`, 500)
     }
 }
 
-export const sendWelcomeEmail = async (recipientMail, recipientUsername, url, next) => {
+export const sendWelcomeEmail = async (recipientMail, recipientUsername, url ) => {
 
 
      try {
@@ -42,14 +42,12 @@ export const sendWelcomeEmail = async (recipientMail, recipientUsername, url, ne
          category: "Email Verification",
        });
      } catch (error) {
-       next(
-         new ErrorHandler(`Email verification could not be sent: ${error}`, 500)
-       );
+      throw new ErrorHandler(`Email verification could not be sent: ${error}`, 500)
      }
 }
 
 
-export const sendPasswordResetEmail = async (recipientMail, resetUrl, next) => {
+export const sendPasswordResetEmail = async (recipientMail, resetUrl) => {
    try {
      const response = await transporter.sendMail({
        from: process.env.SMTP_MAIL,
@@ -62,13 +60,12 @@ export const sendPasswordResetEmail = async (recipientMail, resetUrl, next) => {
        category: "Password Reset",
      });
    } catch (error) {
-     next(
-       new ErrorHandler(`Email verification could not be sent: ${error}`, 500)
-     );
+    throw new ErrorHandler(`Email verification could not be sent: ${error}`, 500)
+     
    }
 }
 
-export const sendResetSuccessEmail = async (recipientMail, next) => {
+export const sendResetSuccessEmail = async (recipientMail) => {
    try {
      const response = await transporter.sendMail({
        from: process.env.SMTP_MAIL,
@@ -78,8 +75,7 @@ export const sendResetSuccessEmail = async (recipientMail, next) => {
        category: "Reset Success",
      });
    } catch (error) {
-     next(
-       new ErrorHandler(`Email verification could not be sent: ${error}`, 500)
-     );
+      throw new ErrorHandler(`Email verification could not be sent: ${error}`, 500)
+     
    }
 }
