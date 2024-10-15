@@ -306,7 +306,7 @@ export const googleOAuth = async (req, res) => {
     }
     
     const newUser = await User.create({
-      username: name,
+      name,
       email,
       password: Date.now().toString(),
       isVerified,

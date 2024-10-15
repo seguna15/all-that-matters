@@ -12,7 +12,7 @@ import ErrorHandler from "../utils/ErrorHandler.util.js"
 */
 export const fetchAllProducts = async (req,res) => {
     const products = await Product.find();
-    res.status(200).json({
+    return res.status(200).json({
         status: true,
         message: "Product fetched successfully",
         products
@@ -47,7 +47,7 @@ export const fetchProduct = async (req,res) => {
     await redis.set(`product:${product._id}`, JSON.stringify(product), "EX", 7 * 24 * 60 * 60);
 
     //return response
-    res.status(200).json({
+    return res.status(200).json({
         status: true,
         message: "Product fetched successfully",
         product
@@ -115,6 +115,11 @@ export const getProductsByCategory = async (req, res) => {
 */
 export const createProduct = async (req, res) => {
     const convertedImages = req.files.map((file) => file.path);
+
+    if(convertedImages.length < 1) {
+        throw new ErrorHandler("Please upload at least one image", 400)
+    }
+
     const {name, description, price, quantity, category} = req.body;
     
     const productExist  = await Product.findOne({name: name.toLowerCase()});
@@ -124,7 +129,7 @@ export const createProduct = async (req, res) => {
         throw new ErrorHandler("Product already exist", 409);
     }
 
-    const categoryExist = await Category.findOne({name: category}) 
+    const categoryExist = await Category.findById(category) 
 
     if(!categoryExist){
         await deleteImages(convertedImages);
@@ -168,7 +173,7 @@ export const updateProduct = async (req, res) => {
   
     const {name, description, price, quantity, category} = req.body;
 
-    const categoryExist = await Category.findOne({name: category.toLowerCase()});
+    const categoryExist = await Category.findById(category);
    
     if(!categoryExist){
         await deleteImages(convertedImages);
@@ -206,9 +211,10 @@ export const updateProduct = async (req, res) => {
     }
   
     //remove from  old category 
-   
-    if (product.category !== updatedProduct.category){
-        const formerCategory = await Category.findOne({name: product.category});
+    
+    if (category !== product.category.toString()){
+        console.log("I am here");
+        const formerCategory = await Category.findById(product.category);
         const newProductArray = formerCategory.products.filter((item) => item.toString() !== updatedProduct._id.toString());
         formerCategory.products = newProductArray;
         await formerCategory.save();
@@ -256,7 +262,7 @@ export const deleteProduct = async (req, res) => {
 
     await redis.del(`product:${id}`);
     await deleteImages(product?.images);
-    const category = await Category.findOne({name: product?.category});
+    const category = await Category.findById(product.category);
     const newProductArray = category.products.filter(
     (item) => item.toString() !== product._id.toString()
     );

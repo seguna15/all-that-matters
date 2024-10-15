@@ -1,28 +1,31 @@
 import {create} from "zustand";
 import { apiClient } from "../api";
+import toast from "react-hot-toast"
 
-export const useAuthStore = create((set) => ({
-  user: null,
+export const useAuthStore = create((set, get) => ({
+  user:  null,
   error: null,
   isLoading: false,
+  checkingAuth: true,
   isGoogleLoading: false,
   userProfile: null,
-  message: null,
 
-  signup: async (username, email, password) => {
+  signup: async (name, email, password) => {
     set({ isLoading: true, error: null });
     try {
       const response = await apiClient.post("/auth/register", {
-        username,
+        name,
         email,
         password,
       });
       set({ isLoading: false });
+      toast.success(response.data.message)
     } catch (error) {
       set({
         error: error.response.data.message || "Error signing up",
         isLoading: false,
       });
+      toast.error(error.response.data.message || "Error signing up");
       throw error;
     }
   },
@@ -32,11 +35,13 @@ export const useAuthStore = create((set) => ({
     try {
       const response = await apiClient.post("auth/verify-email", { code });
       set({ isLoading: false });
+      toast.success(response.data.message)
     } catch (error) {
       set({
         error: error.response.data.message || "Error verifying email",
         isLoading: false,
       });
+      toast.error(error.response.data.message || "Error verifying email");
       throw error;
     }
   },
@@ -50,19 +55,20 @@ export const useAuthStore = create((set) => ({
           email,
           password,
         },
-        { withCredentials: true }
       );
       localStorage.setItem("userInfo", JSON.stringify(response.data.user));
-
       set({
         user: JSON.parse(localStorage?.getItem("userInfo")),
         isLoading: false,
       });
+      
+      toast.success(response.data.message)
     } catch (error) {
       set({
         error: error.response.data.message || "Error signing up",
         isLoading: false,
       });
+      toast.error(error.response.data.message || "Error signing up");
       throw error;
     }
   },
@@ -78,6 +84,7 @@ export const useAuthStore = create((set) => ({
         error: error.response.data.message || "Error signing up with google",
         isGoogleLoading: false,
       });
+      toast.error(error.response.data.message || "Error signing up with google")
       throw error;     
     }
   },
@@ -90,34 +97,21 @@ export const useAuthStore = create((set) => ({
          {
            email,
          },
-         { withCredentials: true }
        );
        localStorage.setItem("userInfo", JSON.stringify(response.data.user));
-
        set({
          user: JSON.parse(localStorage?.getItem("userInfo")),
          isLoading: false,
        });
+       toast.success(response.data.message);
      } catch (error) {
        set({
          error: error.response.data.message || "Error signing up",
          isLoading: false,
        });
+       toast.error(error.response.data.message || "Error signing up");
        throw error;
      }
-  },
-
-  fetchAdminUser: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await apiClient.get("/users/get-admin-profile");
-      set({ userProfile: response.data.user, isLoading: false });
-    } catch (error) {
-      set({
-        error: error.response.data.message || "Error fetching data",
-        isLoading: false,
-      });
-    }
   },
 
   fetchUser: async () => {
@@ -125,26 +119,29 @@ export const useAuthStore = create((set) => ({
     try {
       const response = await apiClient.get("/users/get-user-profile");
       set({ userProfile: response.data.user, isLoading: false });
+      toast.success(response.data.message)
     } catch (error) {
       set({
         error: error.response.data.message || "Error fetching data",
         isLoading: false,
       });
+      toast.error(error.response.data.message || "Error fetching data");
     }
   },
 
   logout: async () => {
     set({ isLoading: true, error: null });
     try {
-      localStorage.removeItem("userInfo");
       const response = await apiClient.post("/auth/logout");
-      console.log(response.data);
+      localStorage.removeItem("userInfo");
       set({ user: null, isLoading: false });
+      toast.success(response.data.message)
     } catch (error) {
       set({
         error: error?.response?.data?.message || "Error fetching data",
         isLoading: false,
       });
+      toast.error(error?.response?.data?.message || "Error fetching data");
     }
   },
 
@@ -152,25 +149,34 @@ export const useAuthStore = create((set) => ({
     const userAuth = localStorage.getItem("userInfo")
       ? JSON.parse(localStorage.getItem("userInfo"))
       : null;
-    set({ user: userAuth });
+    set({ user: userAuth, checkingAuth: false});
   },
 
   forgotPassword: async (email)=> {
     set({isLoading: true, error: null })
     try {
         const response = await apiClient.post("/auth/forgot-password", {email});
-        set({message: response.data.message, isLoading: false})
+        set({isLoading: false})
+        toast.success(response.data.message);
     } catch (error) {
         set({ isLoading: false, error: error.response.data.message || "Error sending reset password email" });
+        toast.error(
+          error.response.data.message || "Error sending reset password email"
+        );
         throw error;
     }
   },
 
   resetPassword: async (token, password) => {
     set({isLoading: true, error: null})
+    if (password !== confirmPassword) {
+      set({isLoading: false,})
+      return toast.error("Passwords do not match");
+    }
     try {
         const response = await apiClient.post(`/auth/reset-password/${token}`, {password})
-        set({message: response.data.message, isLoading: false})
+        set({isLoading: false})
+        toast.success(response.data.message)
     } catch (error) {
         set({
         isLoading: false,
@@ -178,6 +184,9 @@ export const useAuthStore = create((set) => ({
             error.response.data.message ||
             "Error sending reset password email",
         });
+        toast.error(
+          error.response.data.message || "Error sending reset password email"
+        );
         throw error;
     }
   },

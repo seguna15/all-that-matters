@@ -10,6 +10,8 @@ import productRoute from "../routes/product.routes.js";
 import cartRoute from "../routes/cart.routes.js";
 import couponRoute from "../routes/coupon.routes.js";
 import categoriesRoutes from "../routes/category.routes.js";
+import orderRoute from "../routes/order.routes.js";
+import analyticsRoute from "../routes/analytics.routes.js";
 
 //db Connect
 dbConnect();
@@ -39,6 +41,8 @@ app.use(`${API_VERSION}/products`, productRoute);
 app.use(`${API_VERSION}/carts`, cartRoute)
 app.use(`${API_VERSION}/coupons`, couponRoute)
 app.use(`${API_VERSION}/categories`, categoriesRoutes)
+app.use(`${API_VERSION}/orders`, orderRoute)
+app.use(`${API_VERSION}/analytics`, analyticsRoute)
 
 
 //err middleware

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Login from './screens/auth/Login'
-import { FloatingShape } from './components'
+import { FloatingShape, Navbar, Spinner } from './components'
 import HomePage from './screens/home/HomePage'
 import Register from './screens/auth/Register'
 import EmailVerification from './screens/auth/EmailVerification'
@@ -14,92 +14,160 @@ import ForgotPassword from './screens/auth/ForgotPassword'
 import ResetPassword from './screens/auth/ResetPassword'
 import OauthSuccess from './screens/auth/OauthSuccess'
 
+import OverviewPage from "./screens/admin/pages/OverviewPage";
+import ProductsPage from "./screens/admin/pages/products/ProductsPage"
+import AddProductPage from "./screens/admin/pages/products/AddProductPage"
+import UsersPage from "./screens/admin/pages/UsersPage"
+import SalesPage from "./screens/admin/pages/SalesPage"
+import OrdersPage from "./screens/admin/pages/OrdersPage"
+import AnalyticsPage from "./screens/admin/pages/AnalyticsPage";
+import SettingsPage from "./screens/admin/pages/SettingsPage"
+
+
 function App() {
-   const { isAuthenticated, checkAuth, user} = useAuthStore();
+   const { checkAuth, checkingAuth } = useAuthStore();
    useEffect(() => {
       checkAuth();
-   },[checkAuth])
+   },[checkAuth]) 
    
+  if(checkingAuth) return <Spinner/>
+  
   return (
-    <main className="relative flex items-center justify-center min-h-screen overflow-hidden font-nunitoSans bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900">
-      <FloatingShape
-        color="bg-green-500"
-        size="w-64 h-64"
-        top="-5%"
-        left="10%"
-        delay={0}
-      />
-      <FloatingShape
-        color="bg-emerald-500"
-        size="w-48 h-48"
-        top="70%"
-        left="80%"
-        delay={5}
-      />
-      <FloatingShape
-        color="bg-lime-500"
-        size="w-32 h-32"
-        top="40%"
-        left="-10%"
-        delay={2}
-      />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/auth/oauth-success/:email" element={<OauthSuccess />} />
-        <Route
-          path="/auth/login"
-          element={
-            <RedirectAuthenticatedUser>
-              <Login />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route
-          path="/auth/register"
-          element={
-            <RedirectAuthenticatedUser>
-              <Register />
-            </RedirectAuthenticatedUser>
-          }
-        />
-        <Route 
-         path='/auth/forgot-password' 
-         element={
-            <RedirectAuthenticatedUser>
-               <ForgotPassword/>
-            </RedirectAuthenticatedUser>
-         }
-        />
-        <Route 
-         path='/auth/reset-password/:token' 
-         element={
-            <RedirectAuthenticatedUser>
-               <ResetPassword/>
-            </RedirectAuthenticatedUser>
-         }
-        />
+    <div className="relative min-h-screen overflow-hidden text-white bg-gray-900 font-nunitoSans">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.3)_0%,rgba(10,80,60,0.2)_45%,rgba(0,0,0,0.1)_100%)]" />
+        </div>
+      </div>
+      <div className="relative z-50 pt-20">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/auth/oauth-success/:email" element={<OauthSuccess />} />
+          <Route
+            path="/auth/login"
+            element={
+              <RedirectAuthenticatedUser>
+                <Login />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/auth/register"
+            element={
+              <RedirectAuthenticatedUser>
+                <Register />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/auth/forgot-password"
+            element={
+              <RedirectAuthenticatedUser>
+                <ForgotPassword />
+              </RedirectAuthenticatedUser>
+            }
+          />
+          <Route
+            path="/auth/reset-password/:token"
+            element={
+              <RedirectAuthenticatedUser>
+                <ResetPassword />
+              </RedirectAuthenticatedUser>
+            }
+          />
 
-        <Route
-          path="/user/dashboard"
-          element={
-            <UserRoute>
-              <UserDashboard />
-            </UserRoute>
-          }
-        />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
+          <Route
+            path="/user/dashboard"
+            element={
+              <UserRoute>
+                <UserDashboard />
+              </UserRoute>
+            }
+          />
 
-        <Route path="/auth/verify-email" element={<EmailVerification />} />
-      </Routes>
+          {/* Admin routes */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          >
+            <Route
+              path=""
+              element={
+                <AdminRoute>
+                  <OverviewPage />
+                </AdminRoute>
+              }
+            />
+
+            <Route
+              path="products"
+              element={
+                <AdminRoute>
+                  <ProductsPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="add-product"
+              element={
+                <AdminRoute>
+                  <AddProductPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="users"
+              element={
+                <AdminRoute>
+                  <UsersPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="sales"
+              element={
+                <AdminRoute>
+                  <SalesPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="orders"
+              element={
+                <AdminRoute>
+                  <OrdersPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="analytics"
+              element={
+                <AdminRoute>
+                  <AnalyticsPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="settings"
+              element={
+                <AdminRoute>
+                  <SettingsPage />
+                </AdminRoute>
+              }
+            />
+          </Route>
+
+          <Route path="/auth/verify-email" element={<EmailVerification />} />
+        </Routes>
+      </div>
+
       <Toaster />
-    </main>
+    </div>
   );
 }
 

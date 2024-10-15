@@ -1,14 +1,16 @@
-import {useState, useEffect} from 'react'
+import { useEffect} from 'react'
 import { useAuthStore } from '../../store/authStore'
 import { motion } from 'framer-motion'
 import { formatDate } from '../../shared/utils/date'
 import { Spinner } from '../../components'
 
 const UserDashboard = () => {
-   const {isLoading, userProfile, fetchUser, logout} = useAuthStore()
-    useEffect(() => {
-        fetchUser()
-    },[fetchUser])
+  const { isLoading, userProfile, fetchUser, logout } = useAuthStore();
+  
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
 
     const handleLogout = async(e) => {
         e.preventDefault();
@@ -39,7 +41,7 @@ const UserDashboard = () => {
               <h3 className="mb-3 text-xl font-semibold text-green-400">
                 Profile Information
               </h3>
-              <p className="text-gray-300">Name: {userProfile?.username}</p>
+              <p className="text-gray-300">Name: {userProfile?.name}</p>
               <p className="text-gray-300">Email: {userProfile?.email}</p>
             </motion.div>
             <motion.div
