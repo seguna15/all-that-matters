@@ -22,6 +22,15 @@ import SalesPage from "./screens/admin/pages/SalesPage"
 import OrdersPage from "./screens/admin/pages/OrdersPage"
 import AnalyticsPage from "./screens/admin/pages/AnalyticsPage";
 import SettingsPage from "./screens/admin/pages/SettingsPage"
+import CategoriesPage from './screens/admin/pages/categories/CategoriesPage'
+import AddCategoryPage from './screens/admin/pages/categories/AddCategoryPage'
+import UpdateProductsPage from './screens/admin/pages/products/UpdateProductPage'
+import UpdateBrandPage from './screens/admin/pages/brands/UpdateBrandPage'
+import AddBrandPage from './screens/admin/pages/brands/AddBrandPage'
+import BrandsPage from './screens/admin/pages/brands/BrandsPage'
+import UpdateCategoryPage from './screens/admin/pages/categories/UpdateCategoryPage'
+import CategoryPage from './screens/category/CategoryPage'
+import ProductDetails from './screens/products/ProductDetails'
 
 
 function App() {
@@ -39,11 +48,23 @@ function App() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.3)_0%,rgba(10,80,60,0.2)_45%,rgba(0,0,0,0.1)_100%)]" />
         </div>
       </div>
+      <Navbar />
+
       <div className="relative z-50 pt-20">
-        <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/auth/oauth-success/:email" element={<OauthSuccess />} />
+          <Route path="/category/:category" element={<CategoryPage />} />
+          <Route path="/product/:id" element={<ProductDetails/>}/>
+
+          <Route
+            path="/auth/oauth-success/:email"
+            element={
+              <RedirectAuthenticatedUser>
+                <OauthSuccess />
+              </RedirectAuthenticatedUser>
+            }
+          />
+
           <Route
             path="/auth/login"
             element={
@@ -73,6 +94,15 @@ function App() {
             element={
               <RedirectAuthenticatedUser>
                 <ResetPassword />
+              </RedirectAuthenticatedUser>
+            }
+          />
+
+          <Route
+            path="/auth/verify-email"
+            element={
+              <RedirectAuthenticatedUser>
+                <EmailVerification />
               </RedirectAuthenticatedUser>
             }
           />
@@ -121,6 +151,65 @@ function App() {
               }
             />
             <Route
+              path="edit-product/:id"
+              element={
+                <AdminRoute>
+                  <UpdateProductsPage />
+                </AdminRoute>
+              }
+            />
+
+            <Route
+              path="categories"
+              element={
+                <AdminRoute>
+                  <CategoriesPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="add-category"
+              element={
+                <AdminRoute>
+                  <AddCategoryPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="edit-category/:id"
+              element={
+                <AdminRoute>
+                  <UpdateCategoryPage />
+                </AdminRoute>
+              }
+            />
+
+            <Route
+              path="brands"
+              element={
+                <AdminRoute>
+                  <BrandsPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="add-brand"
+              element={
+                <AdminRoute>
+                  <AddBrandPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="edit-brand/:id"
+              element={
+                <AdminRoute>
+                  <UpdateBrandPage />
+                </AdminRoute>
+              }
+            />
+
+            <Route
               path="users"
               element={
                 <AdminRoute>
@@ -161,8 +250,6 @@ function App() {
               }
             />
           </Route>
-
-          <Route path="/auth/verify-email" element={<EmailVerification />} />
         </Routes>
       </div>
 

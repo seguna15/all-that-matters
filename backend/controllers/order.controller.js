@@ -28,7 +28,7 @@ export const createCheckoutSession = async (req, res) => {
                     currency: "usd",
                     product_data: {
                         name: product.name,
-                        name: [product.image],
+                        image: [product.image],
                     },
                     unit_amount: amount
                 }

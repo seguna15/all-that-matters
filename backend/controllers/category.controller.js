@@ -15,7 +15,8 @@ export const createCategory = async (req,res) => {
     //category exists
     const categoryFound = await Category.findOne({name: name.toLowerCase()});
     if(categoryFound){
-        throw new ErrorHandler("Category already exists", 409);
+      await deleteImage(convertedImage);
+      throw new ErrorHandler("Category already exists", 409);
     }
 
     //create

@@ -28,7 +28,7 @@ export const ImageComponent = ({multiple, label, value, onFileChangeHandler, ima
               <div className="flex text-sm text-gray-600">
                 <label
                   htmlFor="file-upload"
-                  className="relative font-medium text-indigo-600 bg-white rounded-md cursor-pointer focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+                  className="relative font-medium text-white bg-gray-700 rounded-md cursor-pointer focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-gray-300"
                 >
                   <span>{label}</span>
                   <input
@@ -40,14 +40,19 @@ export const ImageComponent = ({multiple, label, value, onFileChangeHandler, ima
                   />
                 </label>
               </div>
-              <p className="text-xs text-gray-500">PNG, JPG, GIF up to 1MB</p>
+              <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 1MB</p>
             </div>
           </div>
         </div>
       </div>
-      <span className="text-xs text-red-500 ">
-        {imageErrors.length > 0 && "file or files too large or upload an image"}
-      </span>
+      {imageErrors.length > 0
+        ? imageErrors.map((error) => (
+            <span className="block text-xs text-red-500 ">
+              {error}
+            </span>
+          ))
+        : ""}
+      
     </>
   );
 }

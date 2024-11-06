@@ -32,16 +32,7 @@ const couponSchema = new mongoose.Schema(
     }
 );
 
-//check if coupon is expired;
-/* couponSchema.virtual('isExpired').get(function () {
-    return this.expirationDate < Date.now();
-});
 
-couponSchema.virtual('daysLeft').get(function () {
-    const daysLeft = `${Math.ceil((this.expirationDate - Date.now()) / (1000 * 60 * 60 * 24))} Days left `
-    return daysLeft
-});
- */
 couponSchema.pre("validate", function (next) {
   if (this.expirationDate < Date.now()) {
     next(new ErrorHandler("End date cannot be  less than today", 400));

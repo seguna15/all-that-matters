@@ -18,9 +18,12 @@ export const FormInput = ({...props}) => {
     <div className='relative mb-6'>
       <label htmlFor={props.id} className='block mb-1 text-sm font-medium text-gray-300'>{props.title}</label> 
        {
-          props.textarea ?  
+          props?.type === "textarea" ?  
             (
-              <textarea className='block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-emerald-500 focus:border-emerald-500 '></textarea>
+              <textarea 
+                {...props}
+                className='block w-full px-3 py-2 text-white bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-emerald-500 focus:border-emerald-500'>
+              </textarea>
             )
           :  
           (
@@ -36,6 +39,8 @@ export const FormInput = ({...props}) => {
 }
 
 export const Select = ({...props}) => {
+  
+
   return (
     <div className="relative mb-6">
       <label
@@ -44,15 +49,22 @@ export const Select = ({...props}) => {
       >
         {props?.title}
       </label>
-      <select 
-        className="block w-full px-3 py-2 text-white placeholder-gray-400 transition duration-200 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500" 
-        name={props?.name} 
-        onChange={(e) =>props?.setNewProduct({...props?.newProduct, category: e.target.value})}
-        value={props?.newProduct?.category}
+      <select
+        className="block w-full px-3 py-2 text-white placeholder-gray-400 transition duration-200 bg-gray-800 bg-opacity-50 border border-gray-700 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500"
+        name={props?.name}
+        onChange={(e) =>
+          props?.setNewProduct({
+            ...props?.newProduct,
+            [e.target.name]: e.target.value,
+          })
+        }
+        value={props?.newProduct?.[props?.name]}
       >
         <option value="">{props?.selectInstruction}</option>
-        {props?.categories?.map((category) => (
-          <option key={category?._id} value={category?._id}>{category?.name}</option>
+        {props?.data?.map((item) => (
+          <option key={item?._id} value={item?._id}>
+            {item?.name}
+          </option>
         ))}
       </select>
     </div>

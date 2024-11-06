@@ -12,6 +12,7 @@ import couponRoute from "../routes/coupon.routes.js";
 import categoriesRoutes from "../routes/category.routes.js";
 import orderRoute from "../routes/order.routes.js";
 import analyticsRoute from "../routes/analytics.routes.js";
+import brandsRoutes from "../routes/brand.routes.js";
 
 //db Connect
 dbConnect();
@@ -41,6 +42,7 @@ app.use(`${API_VERSION}/products`, productRoute);
 app.use(`${API_VERSION}/carts`, cartRoute)
 app.use(`${API_VERSION}/coupons`, couponRoute)
 app.use(`${API_VERSION}/categories`, categoriesRoutes)
+app.use(`${API_VERSION}/brands`, brandsRoutes)
 app.use(`${API_VERSION}/orders`, orderRoute)
 app.use(`${API_VERSION}/analytics`, analyticsRoute)
 

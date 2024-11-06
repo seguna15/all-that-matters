@@ -1,26 +1,59 @@
-import { motion } from "framer-motion";
 
 import Header from "../../components/common/Header";
-import StatCard from "../../components/common/StatCard";
+import ProductForm from "./ProductForm";
+import { useProductsStore } from "../../../../store/productsStore";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { AlertTriangle, DollarSign, Package, TrendingUp } from "lucide-react";
-import CategoryDistributionChart from "../../components/overview/CategoryDistributionChart";
-import SalesTrendChart from "../../components/products/SalesTrendChart";
-import ProductsTable from "../../components/products/ProductsTable";
-import ProductForm from "../../components/common/ProductForm";
+const AddProductsPage = () => {
+  const navigate = useNavigate();
+	const { isLoading, isAdded, createProduct, resetStore } = useProductsStore();
+	const [newProduct, setNewProduct] = useState({
+      name: "",
+      description: "",
+      price: "",
+      category: "",
+      brand: "",
+      images: [],
+      quantity: ""
+  })
 
-const ProductsPage = () => {
+
+	const handleCreate = async () => {
+		await createProduct(newProduct)
+		setNewProduct({
+			name: "",
+			description: "",
+			price: "",
+			category: "",
+      brand: "",
+			images: [],
+			quantity: "",
+		});
+	}
+
+  useEffect(() => {
+    if(isAdded) {
+      resetStore()  
+      navigate("/admin/products")
+    }
+  },[isAdded])
+  
 	return (
-		<div className='relative z-10 flex-1 overflow-auto'>
-			<Header title='Products' />
+    <div className="relative z-10 flex-1 overflow-auto">
+      <Header title="Products" />
 
-			<main className='px-4 py-6 mx-auto max-w-7xl lg:px-8'>
-				
-				<ProductForm/>
-
-				
-			</main>
-		</div>
-	);
+      <main className="px-4 py-6 mx-auto max-w-7xl lg:px-8">
+        <ProductForm
+          handleSubmit={handleCreate}
+          productLoading={isLoading}
+          newProduct={newProduct}
+          setNewProduct={setNewProduct}
+          formLabel="Add New Brand"
+          submitLabel="Add Brand"
+        />
+      </main>
+    </div>
+  );
 };
-export default ProductsPage;
+export default AddProductsPage;

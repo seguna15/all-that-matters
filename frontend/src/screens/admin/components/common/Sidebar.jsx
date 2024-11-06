@@ -1,23 +1,19 @@
-import { BarChart2, DollarSign, Menu, Settings, ShoppingBag, ShoppingCart, TrendingUp, Users } from "lucide-react";
+import {
+  BarChart2,
+  DollarSign,
+  Menu,
+  Settings,
+  ShoppingBag,
+  ShoppingCart,
+  TrendingUp,
+  Users,
+  Layers3,
+} from "lucide-react";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { SIDEBAR_ITEMS } from "../../../../shared/data";
 
-const SIDEBAR_ITEMS = [
-	{
-		id: "overview",
-		name: "Overview",
-		icon: BarChart2,
-		color: "#6366f1",
-		href: "/admin",
-	},
-	{ id: "products", name: "Products", icon: ShoppingBag, color: "#8B5CF6", href: "/admin/products" },
-	{ id: "users", name: "Users", icon: Users, color: "#EC4899", href: "/admin/users" },
-	{ id: "sales", name: "Sales", icon: DollarSign, color: "#10B981", href: "/admin/sales" },
-	{ id: "orders", name: "Orders", icon: ShoppingCart, color: "#F59E0B", href: "/admin/orders" },
-	{ id: "analytics", name: "Analytics", icon: TrendingUp, color: "#3B82F6", href: "/admin/analytics" },
-	{ id: "setting", name: "Settings", icon: Settings, color: "#6EE7B7", href: "/admin/settings" },
-];
 
 const Sidebar = () => {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(true);

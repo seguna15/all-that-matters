@@ -1,4 +1,5 @@
 import { redis } from "../config/redis.config.js";
+import Brand from "../models/brand.model.js";
 import Category from "../models/category.model.js";
 import Product from "../models/product.model.js"
 import {deleteImages} from "../utils/deleteImage.util.js";
@@ -11,9 +12,11 @@ import ErrorHandler from "../utils/ErrorHandler.util.js"
 *   @access Private/Admin
 */
 export const fetchAllProducts = async (req,res) => {
-    const products = await Product.find();
+    const products = await Product.find()
+    .populate('category', 'name')
+    .populate('brand', 'name');
     return res.status(200).json({
-        status: true,
+        success: true,
         message: "Product fetched successfully",
         products
     })
@@ -31,14 +34,14 @@ export const fetchProduct = async (req,res) => {
     let product = await redis.get(`product:${id}`)
     if(product){
         return res.status(200).json({
-          status: true,
+          success: true,
           message: "Product fetched successfully",
           product: JSON.parse(product),
         });
     }
 
     //get product from db instead
-    product = await Product.findById(id);
+    product = await Product.findById(id).populate('category', 'name').populate('brand', 'name');
     if(!product){
         throw new ErrorHandler("Product not found", 404);
     }
@@ -48,7 +51,7 @@ export const fetchProduct = async (req,res) => {
 
     //return response
     return res.status(200).json({
-        status: true,
+        success: true,
         message: "Product fetched successfully",
         product
     })
@@ -77,7 +80,12 @@ export const fetchFeaturedProducts = async (req, res) => {
 
     //store in redis for feature quick access
 
-    await redis.set("featured_products", JSON.stringify(featuredProducts));
+    await redis.set(
+      "featured_products",
+      JSON.stringify(featuredProducts),
+      "EX",
+      1 * 24 * 60 * 60
+    ); 
     return res.status(200).json({
        success: true,
        message: "Featured products fetched successfully",
@@ -95,7 +103,7 @@ export const fetchFeaturedProducts = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
     
     const {category} = req.params;
-    const products = await Product.find({category});
+    const products = await Product.find({category}).populate('category', 'name').populate('brand', 'name');
     //filtering
 
 
@@ -120,7 +128,7 @@ export const createProduct = async (req, res) => {
         throw new ErrorHandler("Please upload at least one image", 400)
     }
 
-    const {name, description, price, quantity, category} = req.body;
+    const {name, description, price, quantity, category, brand} = req.body;
     
     const productExist  = await Product.findOne({name: name.toLowerCase()});
 
@@ -136,13 +144,23 @@ export const createProduct = async (req, res) => {
         throw new ErrorHandler("Category not found", 404);
     }
 
+    const brandExist = await Brand.findById(brand) 
+
+    if(!brandExist){
+        await deleteImages(convertedImages);
+        throw new ErrorHandler("Brand not found", 404);
+    }
+
+
+
     const product = await Product.create({
         name,
         description,
         price,
         quantity,
         images: convertedImages,
-        category
+        category,
+        brand
     })
 
     if(!product) {
@@ -153,6 +171,9 @@ export const createProduct = async (req, res) => {
 
     categoryExist.products.push(product._id);
     await categoryExist.save();
+
+    brandExist.products.push(product._id);
+    await brandExist.save();
 
     return res.status(201).json({
         success: true,
@@ -167,73 +188,94 @@ export const createProduct = async (req, res) => {
 *   @access Private/Admin
 */
 export const updateProduct = async (req, res) => {
-    const id = req.params.id;
-    
-    const convertedImages = req?.files?.length > 0 ? req?.files?.map((file) => file?.path) : null;
-  
-    const {name, description, price, quantity, category} = req.body;
+  const id = req.params.id;
 
-    const categoryExist = await Category.findById(category);
-   
-    if(!categoryExist){
-        await deleteImages(convertedImages);
-        throw new ErrorHandler("Category not found", 404);
-    }
-    const product = await Product.findById(id);
-    
-    let updatedProduct;
-    if(convertedImages) {
-        await deleteImages(product.images);
-        updatedProduct = await Product.findByIdAndUpdate(
-          id,
-          {
-            name,
-            description,
-            price,
-            quantity,
-            category,
-            images: convertedImages,
-          },
-          { new: true }
-        );
-    }else{
-         updatedProduct = await Product.findByIdAndUpdate(
-           id,
-           {
-             name,
-             description,
-             price,
-             quantity,
-             category,
-           },
-           { new: true }
-         );
-    }
-  
-    //remove from  old category 
-    
-    if (category !== product.category.toString()){
-        console.log("I am here");
-        const formerCategory = await Category.findById(product.category);
-        const newProductArray = formerCategory.products.filter((item) => item.toString() !== updatedProduct._id.toString());
-        formerCategory.products = newProductArray;
-        await formerCategory.save();
-        categoryExist.products.push(product._id);
-        await categoryExist.save();
-    }
-      
+  const convertedImages =
+    req?.files?.length > 0 ? req?.files?.map((file) => file?.path) : null;
 
-    const cachedProduct = await redis.get(`product:${id}`)
+  const { name, description, price, quantity, category, brand } = req.body;
 
-    if(cachedProduct){
-        await redis.set(`product:${id}`, JSON.stringify(updatedProduct));
-    } 
+  const categoryExist = await Category.findById(category);
 
-    return res.status(201).json({
+  if (!categoryExist) {
+    await deleteImages(convertedImages);
+    throw new ErrorHandler("Category not found", 404);
+  }
+
+  const brandExist = await Brand.findById(brand);
+
+  if (!brandExist) {
+    await deleteImages(convertedImages);
+    throw new ErrorHandler("Brand not found", 404);
+  }
+  const product = await Product.findById(id);
+
+  let updatedProduct;
+  if (convertedImages) {
+    await deleteImages(product.images);
+    updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        name,
+        description,
+        price,
+        quantity,
+        category,
+        brand,
+        images: convertedImages,
+      },
+      { new: true }
+    );
+  } else {
+    updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        name,
+        description,
+        price,
+        quantity,
+        category,
+        brand,
+      },
+      { new: true }
+    );
+  }
+
+  //remove product from category if category changes
+  if (category !== product.category.toString()) {
+    const formerCategory = await Category.findById(product.category);
+    const newProductArray = formerCategory.products.filter(
+      (item) => item.toString() !== updatedProduct._id.toString()
+    );
+    formerCategory.products = newProductArray;
+    await formerCategory.save();
+    categoryExist.products.push(product._id);
+    await categoryExist.save();
+  }
+
+  //remove product from brand if brand changes
+  if (brand !== product.brand.toString()) {
+    const formerBrand = await Brand.findById(product.brand);
+    const newProductArray = formerBrand.products.filter(
+      (item) => item.toString() !== updatedProduct._id.toString()
+    );
+    formerBrand.products = newProductArray;
+    await formerBrand.save();
+    brandExist.products.push(product._id);
+    await brandExist.save();
+  }
+
+  const cachedProduct = await redis.get(`product:${id}`);
+
+  if (cachedProduct) {
+    await redis.set(`product:${id}`, JSON.stringify(updatedProduct));
+  }
+
+  return res.status(201).json({
     success: true,
     message: "Product updated successfully",
     product: updatedProduct,
-    });
+  });
 }
 
 /**
@@ -263,11 +305,18 @@ export const deleteProduct = async (req, res) => {
     await redis.del(`product:${id}`);
     await deleteImages(product?.images);
     const category = await Category.findById(product.category);
-    const newProductArray = category.products.filter(
+    const categoryProductsList = category.products.filter(
     (item) => item.toString() !== product._id.toString()
     );
-    category.products = newProductArray;
+    category.products = categoryProductsList;
     await category.save();
+
+    const brand = await Brand.findById(product.brand);
+    const brandProductsList = brand.products.filter(
+      (item) => item.toString() !== product._id.toString()
+    );
+    brand.products = brandProductsList;
+    await brand.save();
 
     await updateFeaturedProductsCache()
     
@@ -343,7 +392,7 @@ export const getRecommendedProducts = async (req, res, next) => {
 *   @route  Patch /api/v1/products/toggle-featured
 *   @access Private/Admin
 */
-export const toggleFeatured = async (req,res, next) => {
+export const toggleFeatured = async (req,res) => {
     const id = req.params.id;
     const product = await Product.findById(id);
     if(product) {
@@ -353,8 +402,9 @@ export const toggleFeatured = async (req,res, next) => {
         await updateFeaturedProductsCache();
         return res.status(200).json({
             success: true,
-            message: false,
-            product: updatedProduct
+            message: `${updatedProduct.name} is featured ${updatedProduct.isFeatured ? "yes":"no"}`,
+            product: updatedProduct,
+            
         })
     }
 
