@@ -11,7 +11,7 @@ const couponRoute = express.Router();
 couponRoute
   .get("/", protectedRoute, adminRoute, catchAsyncError(fetchAllCoupon))
   .get("/fetch-single/:id", protectedRoute, adminRoute, catchAsyncError(getCoupon))
-  .get("/active", catchAsyncError(fetchActiveCoupons))
+  .get("/active", protectedRoute, catchAsyncError(fetchActiveCoupons))
   .post("/validate", protectedRoute, catchAsyncError(validateCoupon))
   .post("/", protectedRoute, adminRoute, catchAsyncError(createCoupon))
   .put("/:id", protectedRoute, adminRoute, catchAsyncError(updateCoupon))

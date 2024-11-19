@@ -3,19 +3,19 @@ import { Link } from "react-router-dom";
 import { links } from "./Mylinks";
 import { useCategoriesStore } from "../store/categoriesStore";
 
-const NavLinks = () => {
+const NavLinks = ({open, setOpen}) => {
   const [heading, setHeading] = useState("");
   const [subHeading, setSubHeading] = useState("");
-  const {categories, loadCategories} = useCategoriesStore()
+  const {categories,  fetchActiveCategories} = useCategoriesStore()
   useEffect(() => {
-    loadCategories()
-  },[loadCategories])
+    fetchActiveCategories()
+  },[fetchActiveCategories])
 
-  console.log(categories)
+
   return (
     <>
       {links.map((link) => (
-        <div>
+        <div key={link?.name}>
           <div className="px-3 text-left md:cursor-pointer group">
             <h1
               className="flex items-center justify-between pr-5 py-7 md:pr-0 group"
@@ -44,9 +44,9 @@ const NavLinks = () => {
                   </div>
                   <div className="grid grid-cols-3 gap-10 p-5 bg-white">
                     {categories.map((category) => (
-                      <div>
+                      <div key={category?._id}>
                         <Link
-                          key={categories?.name}
+                          key={category?._id}
                           to={`/category/${category._id}`}
                           state={{ name: category?.name }}
                           className="font-semibold capitalize text-md"
@@ -68,13 +68,14 @@ const NavLinks = () => {
           >
             {/* sublinks */}
             {categories.map((category) => (
-              <div>
+              <div key={category?._id}>
                 <div>
                   <Link
-                    key={categories?.name}
+                    key={category?._id}
                     to={`/category/${category._id}`}
                     state={{ name: category?.name }}
                     className="flex items-center justify-between py-4 pr-5 font-semibold capitalize pl-7 md:pr-0"
+                    onClick={(e) => setOpen(!open)}
                   >
                     {category.name}
                   </Link>

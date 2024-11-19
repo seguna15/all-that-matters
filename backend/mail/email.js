@@ -2,6 +2,9 @@ import ErrorHandler from "../utils/ErrorHandler.util.js"
 import replaceAll from "../utils/replaceAll.util.js";
 import { PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE, WELCOME_EMAIL_TEMPLATE } from "./emailTemplates.js"
 import { transporter } from "./nodemailer.config.js";
+import ejs from "ejs";
+import path from "path";
+
 
 
 export const sendVerificationEmail = async (recipientMail, verificationToken ) => {
@@ -79,3 +82,38 @@ export const sendResetSuccessEmail = async (recipientMail) => {
      
    }
 }
+
+export const sendInvoice = async (orderData, userEmail) => {
+  const __dirname = path.resolve("mail/views/invoiceEmail.ejs");
+  
+
+  
+  try {
+
+    ejs.renderFile(
+      __dirname,
+      {order: orderData},
+      async function (err, template) {
+        if (err) {
+          console.log("Error: ", err);
+        } else {
+          await transporter.sendMail({
+            from: process.env.SMTP_MAIL,
+            to: userEmail,
+            subject: "Order receipt",
+            html: template,
+            category: "Order success",
+          });
+        }
+      }
+    );
+   
+  } catch (error) {
+    throw new ErrorHandler(
+      `Email verification could not be sent: ${error}`,
+      500
+    );
+  } 
+}
+
+//sendInvoice();

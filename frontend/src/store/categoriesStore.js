@@ -6,6 +6,7 @@ export const useCategoriesStore = create((set, get) => ({
   category: null,
   categories: [],
   filteredCategories: [],
+  featuredCategories: [],
   isLoading: false,
   isUpdated: false,
   isAdded: true,
@@ -76,7 +77,7 @@ export const useCategoriesStore = create((set, get) => ({
       );
     }
   },
- 
+
   fetchAllCategories: async () => {
     set({ isLoading: true });
     try {
@@ -95,7 +96,21 @@ export const useCategoriesStore = create((set, get) => ({
   fetchFeaturedCategories: async () => {
     set({ isLoading: true });
     try {
-      const response = await apiClient.get("/categories/featured-categories");
+      const response = await apiClient.get("/categories/get/featured");
+      set({ featuredCategories: response.data.categories, isLoading: false });
+      set({ isLoading: false });
+    } catch (error) {
+      console.log(error);
+      set({ isLoading: false });
+      toast.error(
+        error.response.data.message || "Error fetching featured categories"
+      );
+    }
+  },
+  fetchActiveCategories: async () => {
+    set({ isLoading: true });
+    try {
+      const response = await apiClient.get("/categories/get/active");
       set({ categories: response.data.categories, isLoading: false });
       set({ isLoading: false });
     } catch (error) {
@@ -111,13 +126,57 @@ export const useCategoriesStore = create((set, get) => ({
     set({ isLoading: true });
     try {
       const response = await apiClient.patch(
-        `/categories//toggle-featured/${categoryId}`
+        `/categories/toggle-featured/${categoryId}`
       );
 
       set((prevCategories) => ({
         categories: prevCategories.categories.map((category) =>
           category._id === categoryId
             ? { ...category, isFeatured: response.data.category.isFeatured }
+            : category
+        ),
+        filteredCategories: prevCategories.filteredCategories.map((category) =>
+          category._id === categoryId
+            ? { ...category, isFeatured: response.data.category.isFeatured }
+            : category
+        ),
+        isLoading: false,
+      }));
+      toast.success(response.data.message);
+    } catch (error) {
+      console.log(error);
+      set({ isLoading: false });
+      toast.error(
+        error?.response?.data?.message ||
+          "Category featured status could not be changed"
+      );
+    }
+  },
+
+  toggleActive: async (categoryId) => {
+    set({ isLoading: true });
+    try {
+      const response = await apiClient.patch(
+        `/categories/toggle-activated/${categoryId}`
+      );
+
+      set((prevCategories) => ({
+        categories: prevCategories.categories.map((category) =>
+          category._id === categoryId
+            ? {
+                ...category,
+                isActivated: response.data.category.isActivated,
+                isFeatured: response.data.category.isFeatured,
+              }
+            : category
+        ),
+        filteredCategories: prevCategories.filteredCategories.map((category) =>
+          category._id === categoryId
+            ? {
+                ...category,
+                isActivated: response.data.category.isActivated,
+                isFeatured: response.data.category.isFeatured,
+              }
             : category
         ),
         isLoading: false,

@@ -1,15 +1,13 @@
 import Redis from "ioredis"
-
+import logger from "../logger/logger.js";
 
 export const redis = new Redis(process.env.REDIS_URL);
 
-/* let redisClient;
 
-(async () => {
-  redisClient = redis.createClient();
+redis.on("ready", () => {
+  logger.info("Redis Connected!");
+});
 
-  redisClient.on("error", (error) => console.error(`Error : ${error}`));
-
-  await redisClient.connect();
-})(); */
-
+redis.on("error", (err) => {
+  logger.error("Error in the connection", err);
+});

@@ -8,19 +8,15 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    orderNum: {
-      type: String,
-      required: true,
-      default: await genRandomNumber(),
-    },
-    products: [
+    orderItems: [
       {
-        product: {
+        _id: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
           required: true,
         },
-        quantity: {
+
+        boughtQty: {
           type: Number,
           required: true,
           min: 1,
@@ -37,6 +33,16 @@ const orderSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    subTotal: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    saving: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
     shippingAddress: {
       type: Object,
       required: true,
@@ -48,12 +54,28 @@ const orderSchema = new mongoose.Schema(
     },
     orderStatus: {
       type: String,
-      enum: ["pending", "processing", "delivered"],
+      enum: ["pending", "processing", "shipped", "delivered"],
     },
-    stripeSessionId: {
+    paymentSessionID: {
+      type: String,
+      unique: true,
+    },
+    paymentProvider: {
+      type: String,
+      required: true,
+    },
+    paymentMethod: {
+      type: String,
+      required: true,
+    },
+    coupon: {
+      code: {
         type: String,
-        unique: true,
-    }
+      },
+      percentage: {
+        type: Number,
+      },
+    },
   },
   {
     timestamps: true,

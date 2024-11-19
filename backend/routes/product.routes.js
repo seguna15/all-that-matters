@@ -12,7 +12,7 @@ productRoute
   .get("/", protectedRoute, adminRoute, catchAsyncError(fetchAllProducts))
   .get("/featured-products", catchAsyncError(fetchFeaturedProducts))
   .get("/:id", catchAsyncError(fetchProduct))
-  .get("/recommended", catchAsyncError(getRecommendedProducts))
+  .get("/recommended/get", catchAsyncError(getRecommendedProducts))
   .get("/category/:category", catchAsyncError(getProductsByCategory))
   .post(
     "/",

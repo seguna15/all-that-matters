@@ -2,6 +2,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs"
 import ErrorHandler from "../utils/ErrorHandler.util.js";
+import logger from "../logger/logger.js";
 
 
 const storage = multer.diskStorage({
@@ -34,7 +35,8 @@ const fileFilter = (req, file, cb) =>  {
     }
   }
   const onError = (err, next) => {
-    console.log('error', err);
+    logger.error(err)
+   
     next(new ErrorHandler(err, 400));
   }
   

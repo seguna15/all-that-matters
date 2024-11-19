@@ -19,7 +19,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
     <p>Enter this code on the verification page to complete your registration.</p>
     <p>This code will expire in 15 minutes for security reasons.</p>
     <p>If you didn't create an account with us, please ignore this email.</p>
-    <p>Best regards,<br>Your App Team</p>
+    <p>Best regards,<br>Allthatmatters Food</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>This is an automated message, please do not reply to this email.</p>
@@ -56,7 +56,7 @@ export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
       <li>Avoid using the same password across multiple sites</li>
     </ul>
     <p>Thank you for helping us keep your account secure.</p>
-    <p>Best regards,<br>Your App Team</p>
+    <p>Best regards,<br>Allthatmatters Foods</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>This is an automated message, please do not reply to this email.</p>
@@ -85,7 +85,7 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
       <a href="{resetURL}" style="background-color: #4CAF50; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
     </div>
     <p>This link will expire in 1 hour for security reasons.</p>
-    <p>Best regards,<br>Your App Team</p>
+    <p>Best regards,<br>Allthatmatters Foods</p>
   </div>
   <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
     <p>This is an automated message, please do not reply to this email.</p>
@@ -179,7 +179,7 @@ export const WELCOME_EMAIL_TEMPLATE = `
             <tbody>
               <tr>
                 <td style="padding:48px 0 30px 0; text-align: center; font-size: 14px; color: #4C83EE;">
-                 Auth Company
+                 Allthatmatters Foods
                 </td>
               </tr>
               <tr>
@@ -193,7 +193,7 @@ export const WELCOME_EMAIL_TEMPLATE = `
                       </tr>
                       <tr>
                         <td style="padding: 0 0 10px 0; font-size: 14px; line-height: 150%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
-                          Thanks for choosing Auth Company! We are happy to see you on board.
+                          Thanks for choosing Allthatmatters Foods! We are happy to see you on board.
                         </td>
                       </tr>
                       <tr>
@@ -209,7 +209,7 @@ export const WELCOME_EMAIL_TEMPLATE = `
                       
                       <tr>
                         <td style="font-size: 14px; line-height: 170%; font-weight: 400; color: #000000; letter-spacing: 0.01em;">
-                          Best regards, <br><strong>Auth Company</strong>
+                          Best regards, <br><strong>Allthatmatters Foods</strong>
                         </td>
                       </tr>
                     </tbody>
@@ -220,7 +220,7 @@ export const WELCOME_EMAIL_TEMPLATE = `
                 <td style="padding: 24px 0 48px; font-size: 0px;">
                   <!--[if mso | IE]>      <table role="presentation" border="0" cellpadding="0" cellspacing="0">        <tr>          <td style="vertical-align:top;width:300px;">      <![endif]-->
                   <div class="outlook-group-fix" style="padding: 0 0 20px 0; vertical-align: top; display: inline-block; text-align: center; width:100%;">
-                    <span style="padding: 0; font-size: 11px; line-height: 15px; font-weight: normal; color: #8B949F;">Company Auth Cooperation<br/>No5 Anderson Drive, Lagos, Nigeria</span>
+                    <span style="padding: 0; font-size: 11px; line-height: 15px; font-weight: normal; color: #8B949F;">Allthatmatters Foods<br/>Bodija Market, Ibadan, Oyo State, Nigeria</span>
                   </div>
                   <!--[if mso | IE]>      </td></tr></table>      <![endif]-->
                 </td>

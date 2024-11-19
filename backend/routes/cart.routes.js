@@ -10,7 +10,7 @@ cartRoute
   .get("/", protectedRoute, catchAsyncError(fetchCartItems))
   .post("/", protectedRoute, catchAsyncError(addToCart))
   .patch("/:productId", protectedRoute, catchAsyncError(updateItemQty))
-  .delete("/", protectedRoute, catchAsyncError(removeItemFromCart))
+  .delete("/:productId", protectedRoute, catchAsyncError(removeItemFromCart))
 
 export default cartRoute;
 

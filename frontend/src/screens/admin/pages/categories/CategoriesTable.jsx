@@ -9,7 +9,7 @@ import { serverURL } from "../../../../api";
 
 const CategoriesTable = () => {
 	const [searchTerm, setSearchTerm] = useState("");
-  const { filteredCategories, isLoading, /*toggleFeatured,*/ filterCategory } = useCategoriesStore();
+  const { filteredCategories, isLoading, toggleFeatured, toggleActive, filterCategory } = useCategoriesStore();
 
 
 	const handleSearch = async (e) => {
@@ -64,7 +64,12 @@ const CategoriesTable = () => {
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Category Items
                 </th>
-
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
+                  Active
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
+                  Featured
+                </th>
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Actions
                 </th>
@@ -89,6 +94,30 @@ const CategoriesTable = () => {
 
                   <td className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap">
                     {category?.products?.length}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap">
+                    <span 
+                    className={` rounded-full px-2 py-0.5
+                      ${
+                        category?.isActivated ? "bg-emerald-600 text-gray-100" : "bg-orange-700 text-gray-100"
+                      }
+                    `}
+                    onClick={() => toggleActive(category?._id)}
+                    >
+                      {category?.isActivated ? "active": "inactive"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap">
+                    <span 
+                    className={` rounded-full px-2 py-0.5
+                      ${
+                        category?.isFeatured ? "bg-emerald-600 text-gray-100" : "bg-orange-700 text-gray-100"
+                      }
+                    `}
+                    onClick={() => toggleFeatured(category?._id)}
+                    >
+                      {category?.isFeatured ? "featured": "not featured"}
+                    </span>
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap">

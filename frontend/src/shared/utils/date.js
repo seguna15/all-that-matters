@@ -13,3 +13,10 @@ export const formatDate = (dateString) => {
     hour12: true,
   });
 };
+
+export const usDate = (dateString) => {
+   var inputDate = new Date(dateString);
+   var formattedDate = inputDate.getFullYear()+'-'+(inputDate.getMonth() + 1)+'-'+ 
+   inputDate.getDate();
+   return formattedDate;
+}

@@ -16,7 +16,10 @@ const OauthSuccess = () => {
 
   return (
     <>
-         {isLoading ? <Spinner/> : <h1 className='text-4xl text-white'>Redirecting</h1>}
+         {isLoading ? <Spinner/> :
+         
+         
+         <h1 className='text-4xl text-white'>Redirecting</h1>}
     </>
  
   )

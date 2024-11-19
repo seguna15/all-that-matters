@@ -1,14 +1,12 @@
-import { redis } from "../config/redis.config.js";
 import Coupon from "../models/coupon.model.js";
 import ErrorHandler from "../utils/ErrorHandler.util.js";
-import { updateActiveCouponCache, validateCacheCoupon, validateDBCoupon } from "../utils/coupon.util.js"; 
 /**
  *   @desc   Create Coupon
  *   @route  POST /api/v1/coupon/
  *   @access Private/Admin
  */
 export const createCoupon = async (req, res) => {
-  const { code, discountPercentage, expirationDate } = req.body;
+  const { code, discountPercentage, maxUsage, expirationDate } = req.body;
 
   //check if discount in a number
   if (isNaN(discountPercentage)) {
@@ -20,7 +18,7 @@ export const createCoupon = async (req, res) => {
     code: code?.toUpperCase(),
     expirationDate,
     discountPercentage,
-    userId: req.userAuthId,
+    maxUsage,
   });
 
   //return response
@@ -40,40 +38,25 @@ export const validateCoupon = async (req, res) => {
    
     const code = req?.body?.code;
     
-    const coupons = await redis.get("active_coupons") ? JSON.parse(await redis.get("active_coupons")) :  null;
-
-    //find in redis cache
-    let coupon = coupons?.find(coupon => coupon?.code === code && coupon.isActive);
-   
-
-    // if coupon is in redis cache
-    if(coupon) {
-      await validateCacheCoupon(coupons, coupon)
-      return res.status(200).json({
-        success: true,
-        message: `${coupon.code} ${coupon.discountPercentage}% applied`,
-        coupon: {
-          code: coupon.code,
-          discountPercentage: coupon.discountPercentage,
-        },
-      });
-    }
-
-
-    coupon = await Coupon.findOne({code, isActive: true});
+  
+    const coupon = await Coupon.findOne({code, isActive: true});
 
     if(!coupon){
         throw new ErrorHandler("Coupon not found", 404)
     }
 
-    await validateDBCoupon(coupon)
+    if (coupon.expirationDate < Date.now()) {
+      coupon.isActive = false;
+      await coupon.save();
+      throw new ErrorHandler("Coupon has expired", 400);
+    }
 
     return res.status(200).json({
         success: true,
         message: `${coupon.code} ${coupon.discountPercentage}% applied`,
         coupon: {
-            code: coupon.code,
-            discountPercentage: coupon.discountPercentage,
+            code: coupon?.code,
+            discountPercentage: coupon?.discountPercentage,
         },
     })
 };
@@ -85,43 +68,54 @@ export const validateCoupon = async (req, res) => {
  *   @access Public
  */
 export const fetchActiveCoupons = async (req, res) => {
-  let activeCoupons = await redis.get("active_coupons");
-  if (activeCoupons) {
+  const id = req?.userAuthId;
+  
+  let activeCoupon = await Coupon.findOne({
+    userId: { $eq: id },
+    isActive: true,
+  })
+    
+   
+
+  if (activeCoupon) {
     return res.status(200).json({
       success: true,
-      message: "Featured products fetched successfully",
-      products: JSON.parse(activeCoupons),
+      message: "User Coupon fetched successfully",
+      coupon: activeCoupon,
     });
   }
 
-  
-    activeCoupons = await Coupon.find({ isActive: true }).sort({ expirationDate: 1 });
-    if(!activeCoupons) {
-      throw new ErrorHandler("No active coupons found", 404);
-    }
-    
-    await redis.set("active_coupons", JSON.stringify(activeCoupons));
+  activeCoupon = await Coupon.find({ isActive: true })
+    .sort({ expirationDate: 1 })
+    .limit(1);
 
+  if(!activeCoupon) {
+    throw new ErrorHandler("No active coupons found", 404);
+  }
+    
+    
+
+    
   return res.status(200).json({
     success: true,
     message: "Coupon fetched successfully",
-    coupons: activeCoupons,
-  })
+    coupon: activeCoupon,
+  });
 };
 
 /**
  *   @desc   Fetch All Coupon
- *   @route  POST /api/v1/coupon/
+ *   @route  GET /api/v1/coupon/
  *   @access Private/Admin
  */
 export const fetchAllCoupon = async (req, res) => {
-  const coupon = await Coupon.find();
+  const coupons = await Coupon.find();
 
   //pagination
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     message: "Coupon fetched successfully",
-    coupon,
+    coupons,
   })
 };
 
@@ -155,7 +149,7 @@ export const getCoupon = async(req, res) => {
  */
 export const updateCoupon = async (req, res) => {
   const id = req.params.id;
-  const { code, discountPercentage, expirationDate } = req.body;
+  const { code, discountPercentage, maxUsage, expirationDate } = req.body;
 
   //check if discount in a number
   if (isNaN(discountPercentage)) {
@@ -163,17 +157,21 @@ export const updateCoupon = async (req, res) => {
   }
 
   //create coupon
-  const coupon = await Coupon.findByIdAndUpdate( id,{
-    code: code?.toUpperCase(),
-    expirationDate,
-    discountPercentage,
-    userId: req.userAuthId,
-  }, {new: true});
+  const coupon = await Coupon.findByIdAndUpdate(
+    id,
+    {
+      code: code?.toUpperCase(),
+      expirationDate,
+      discountPercentage,
+      maxUsage,
+    },
+    { new: true }
+  );
 
   //return response
   return res.status(201).json({
     success: true,
-    message: "Coupon created successfully",
+    message: "Coupon updated successfully",
     coupon,
   });
 };
@@ -204,16 +202,16 @@ export const deleteCoupon = async (req, res) => {
 *   @route  Patch /api/v1/coupons/toggle-activation/:id
 *   @access Private/Admin
 */
-export const toggleActivation = async (req,res, next) => {
+export const toggleActivation = async (req,res) => {
     const id = req.params.id;
     const coupon = await Coupon.findById(id);
     if(coupon) {
         coupon.isActive = !coupon.isActive;
         const updatedCoupon = await coupon.save();
-        await updateActiveCouponCache()
+        
         return res.status(200).json({
             success: true,
-            message: false,
+            message: `Coupon ${updatedCoupon.code} update to ${updatedCoupon.isActive ? 'Yes' : 'No'}`,
             coupon: updatedCoupon
         })
     }

@@ -41,7 +41,8 @@ export const fetchProduct = async (req,res) => {
     }
 
     //get product from db instead
-    product = await Product.findById(id).populate('category', 'name').populate('brand', 'name');
+    product = await Product.findById(id).populate('category', 'name').populate('brand', 'name').populate("category", "name")
+    .populate("brand", "name");;
     if(!product){
         throw new ErrorHandler("Product not found", 404);
     }
@@ -72,7 +73,8 @@ export const fetchFeaturedProducts = async (req, res) => {
         });
     }
     //if not in redis fetch from mongodb, lean returns a plain mongodb object
-    featuredProducts = await Product.find({isFeatured: true}).lean();
+    featuredProducts = await Product.find({isFeatured: true}).populate("category", "name")
+    .populate("brand", "name").lean();
 
     if(!featuredProducts) {
         throw new ErrorHandler("No featured products found");
@@ -101,18 +103,84 @@ export const fetchFeaturedProducts = async (req, res) => {
 *   @access Public
 */
 export const getProductsByCategory = async (req, res) => {
-    
-    const {category} = req.params;
-    const products = await Product.find({category}).populate('category', 'name').populate('brand', 'name');
-    //filtering
+  const { category } = req.params;
+  let productQuery =  Product.find({ category, isActivated: true })
+    .populate("category", "name")
+    .populate("brand", "name");
+
+  //filtering
+
+  // filter by brand
+  if (req.query.brand) {
+    productQuery = productQuery.find({
+      brand: { $eq: req.query.brand },
+    });
+  }
 
 
-    return res.status(200).json({
-        success: true,
-        message: "Products fetched successfully",
-        products
-    })
+ 
+  //filter by price range
+  if (req.query.price) {
+    const priceRange = req.query.price.split("-");
+    //greater than oe equal to and less than or equal to
+    productQuery = productQuery.find({
+      price: { $gte: priceRange[0], $lte: priceRange[1] },
+    });
+  }
 
+  //filter by price range
+  if (req.query.quantity) {
+    const quantityRange = req.query.quantity.split("-");
+    //greater than oe equal to and less than or equal to
+    productQuery = productQuery.find({
+      quantity: { $gte: quantityRange[0], $lte: quantityRange[1] },
+    });
+  }
+
+  //pagination
+  //page
+  const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+  //limit
+  const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
+  //startIndex
+  const startIndex = (page - 1) * limit;
+  //endIndex
+  const endIndex = page * limit;
+  //total
+  const total = await Product.countDocuments({ category, isActivated: true });
+
+  productQuery = productQuery.skip(startIndex).limit(limit);
+
+  //pagination result
+  const pagination = {};
+
+  if (endIndex < total) {
+    pagination.next = {
+      page: page + 1,
+      limit,
+    };
+  }
+
+  if (startIndex > 0) {
+    pagination.prev = {
+      page: page - 1,
+      limit,
+    };
+  }
+
+  //await query
+  const products = await productQuery;
+
+  return res.status(200).json({
+    success: true,
+    total,
+    results: products.length,
+    pagination,
+    message: "Product fetched",
+    products,
+  });
+
+  
 }
 
 
@@ -150,8 +218,6 @@ export const createProduct = async (req, res) => {
         await deleteImages(convertedImages);
         throw new ErrorHandler("Brand not found", 404);
     }
-
-
 
     const product = await Product.create({
         name,
@@ -225,7 +291,7 @@ export const updateProduct = async (req, res) => {
         images: convertedImages,
       },
       { new: true }
-    );
+    ).populate("category", "name").populate("brand", "name");
   } else {
     updatedProduct = await Product.findByIdAndUpdate(
       id,
@@ -238,7 +304,9 @@ export const updateProduct = async (req, res) => {
         brand,
       },
       { new: true }
-    );
+    )
+      .populate("category", "name")
+      .populate("brand", "name");
   }
 
   //remove product from category if category changes
@@ -268,9 +336,14 @@ export const updateProduct = async (req, res) => {
   const cachedProduct = await redis.get(`product:${id}`);
 
   if (cachedProduct) {
-    await redis.set(`product:${id}`, JSON.stringify(updatedProduct));
+    await redis.set(
+      `product:${id}`,
+      JSON.stringify(updatedProduct),
+      "EX",
+      7 * 24 * 60 * 60
+    );
   }
-
+  await updateFeaturedProductsCache()
   return res.status(201).json({
     success: true,
     message: "Product updated successfully",
@@ -341,6 +414,7 @@ export const toggleActivated = async (req, res) => {
     if(product) {
         await redis.del(`product:${id}`);
         product.isActivated = !product.isActivated;
+
         if(product.isFeatured) {
             product.isFeatured = false;
             updatedProduct = await product.save();
@@ -368,14 +442,15 @@ export const toggleActivated = async (req, res) => {
 export const getRecommendedProducts = async (req, res, next) => {
     const products = await Product.aggregate([
         {
-            $sample: {size: 3}
+            $sample: {size: 4}
         },{
             $project: {
                 _id: 1,
                 name: 1,
                 description: 1,
-                image: 1,
+                images: 1,
                 price: 1
+
             }
         }
     ]);
@@ -395,8 +470,29 @@ export const getRecommendedProducts = async (req, res, next) => {
 export const toggleFeatured = async (req,res) => {
     const id = req.params.id;
     const product = await Product.findById(id);
+
+
     if(product) {
+        const featured_products =  JSON.parse(
+          await redis.get("featured_products")
+        );
+
+        if(!product.isFeatured ) {
+          if (product.quantity < 1) {
+            throw new ErrorHandler("You cannot feature out of stock product");
+          }
+
+          if (featured_products.length >= 8) {
+            throw new ErrorHandler("Maximum featured product of 8 reached");
+          } 
+
+          
+        }
+        
+
         product.isFeatured = !product.isFeatured;
+
+        
         const updatedProduct = await product.save();
 
         await updateFeaturedProductsCache();
@@ -411,7 +507,7 @@ export const toggleFeatured = async (req,res) => {
    throw new ErrorHandler("No Product found", 404);
 }
 
-async function updateFeaturedProductsCache () {
+export async function updateFeaturedProductsCache () {
     const featuredProducts = await Product.find({isFeatured: true}).lean();
-    await redis.set("featured_products", JSON.stringify(featuredProducts));
+    await redis.set("featured_products", JSON.stringify(featuredProducts), "EX", 24 * 3600);
 }

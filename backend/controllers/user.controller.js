@@ -30,7 +30,7 @@ export const getUserProfile = async (req,res, next) => {
  * @access Private
  */
 export const getAllCustomers = async (req, res) => {
-  const customers = await User.find({isAdmin: false})
+  const customers = await User.find()
 
   return res.status(200).send({
     success: true,
@@ -38,6 +38,58 @@ export const getAllCustomers = async (req, res) => {
     customers
   })
 }
+
+
+/**
+ * @desc Toggle user role 
+ * @route PATCH /api/v1/users/toggle/role/:id
+ * @access Private
+ */
+export const toggleUserRole = async (req, res) => {
+  const id = req.params.id;
+  const userFound = await User.findById(id);
+
+  if(!userFound) {
+    throw new ErrorHandler("User not found", 404);
+  }
+
+  userFound.isAdmin = !userFound?.isAdmin;
+  await userFound.save();
+
+
+  return res.status(201).json({
+    success: true,
+    message: `User role updated to ${userFound.isAdmin ? 'admin' : 'user'}`,
+    user: userFound
+  })
+}
+
+
+
+/**
+ * @desc Toggle user status 
+ * @route PATCH /api/v1/users/toggle/status/:id
+ * @access Private
+ */
+export const toggleUserStatus = async (req, res) => {
+  const id = req.params.id;
+  const userFound = await User.findById(id);
+
+  if(!userFound) {
+    throw new ErrorHandler("User not found", 404);
+  }
+
+  userFound.isVerified = !userFound?.isVerified;
+  await userFound.save();
+
+
+  return res.status(201).json({
+    success: true,
+    message: `User role updated to ${userFound.isVerified ? "verified" : "unverified"}`,
+    user: userFound,
+  });
+}
+
 
 
 /**

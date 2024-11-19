@@ -19,10 +19,10 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters long"],
     },
-    wishList: [
+    orders: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
+        ref: "Order",
       },
     ],
     lastLogin: {
@@ -49,27 +49,34 @@ const userSchema = new mongoose.Schema(
       firstName: {
         type: String,
       },
+
       lastName: {
         type: String,
       },
+
       address: {
         type: String,
       },
       city: {
         type: String,
       },
-      postalCode: {
+      zipCode: {
         type: String,
       },
-      province: {
+      state: {
         type: String,
       },
       country: {
         type: String,
       },
+      
+      phoneCode: {
+        type: String,
+      },
       phoneNumber: {
         type: String,
       },
+      
     },
     resetPasswordToken: String,
     resetPasswordExpiresAt: Date,

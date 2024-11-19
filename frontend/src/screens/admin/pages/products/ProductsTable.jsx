@@ -9,7 +9,7 @@ import { serverURL } from "../../../../api";
 
 const ProductsTable = () => {
 	const [searchTerm, setSearchTerm] = useState("");
-  const { filteredProducts, productLoading, toggleFeatured, filterProduct } = useProductsStore();
+  const { filteredProducts, productLoading, toggleFeatured, toggleActive, filterProduct } = useProductsStore();
 
 	const handleSearch = async (e) => {
 		const term = e.target.value.toLowerCase();
@@ -76,6 +76,9 @@ const ProductsTable = () => {
                   Featured
                 </th>
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
+                  Active
+                </th>
+                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
                   Actions
                 </th>
               </tr>
@@ -114,24 +117,37 @@ const ProductsTable = () => {
                     {product?.totalSold}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap">
-                    {product?.isFeatured === true ? (
-                      <span
-                        className="text-sm text-green-400"
-                        onClick={() => toggleFeatured(product?._id)}
-                      >
-                        Yes
-                      </span>
-                    ) : (
-                      <span
-                        className="text-sm text-red-400"
-                        onClick={() => toggleFeatured(product?._id)}
-                      >
-                        No
-                      </span>
-                    )}
+                    <span
+                      className={`
+                          ${
+                            product?.isFeatured
+                              ? "text-sm text-green-400"
+                              : "text-sm text-red-400"
+                          }
+                        `}
+                      onClick={() => toggleFeatured(product?._id)}
+                    >
+                      {product?.isFeatured ? "Featured" : "Not Featured"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap">
+                    <span
+                      className={`
+                          ${
+                            product?.isActivated
+                              ? "text-sm text-green-400"
+                              : "text-sm text-red-400"
+                          }
+                        `}
+                      onClick={() => toggleActive(product?._id)}
+                    >
+                      {product?.isActivated ? "Active" : "Inactive"}
+                    </span>
+                   
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap">
                     <Link
+                      to={`/admin/product-details/${product?._id}`}
                       key="fhjdf"
                       className="inline-flex mr-2 text-green-400 hover:text-green-300"
                     >

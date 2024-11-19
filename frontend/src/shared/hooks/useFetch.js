@@ -10,7 +10,7 @@ export default function useFetch(endpoint, id, payload) {
     const  getData = async (endpoint, id, payload) =>  {
       try {
         setIsFetchLoading(true);
-        const {data} = await apiClient(`${endpoint}/${id}`);
+        const {data} = await apiClient.get(`${endpoint}/${id}`);
         
         setData(data[payload]);
       } catch (error) {

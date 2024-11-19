@@ -59,53 +59,59 @@ const EmailVerification = () => {
     },[code])
 
     return (
-      <main className="flex items-center justify-center min-h-screen ">
+      <main className="relative min-h-screen overflow-hidden text-white bg-gray-900 font-nunitoSans">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.3)_0%,rgba(10,80,60,0.2)_45%,rgba(0,0,0,0.1)_100%)]" />
+          </div>
+        </div>
+        <div className="flex items-center justify-center min-h-screen ">
+          <div className="w-full max-w-md overflow-hidden bg-gray-800 bg-opacity-50 shadow-xl backdrop-filter backdrop-blur-xl rounded-2xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="w-full max-w-md p-8 overflow-hidden bg-gray-800 bg-opacity-50 shadow-xl backdrop-filter backdrop-blur-xl rounded-2xl"
+            >
+              <h2 className="mb-6 text-3xl font-bold text-center text-transparent bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text">
+                Verify Your Email
+              </h2>
 
-        <div className="w-full max-w-md overflow-hidden bg-gray-800 bg-opacity-50 shadow-xl backdrop-filter backdrop-blur-xl rounded-2xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="w-full max-w-md p-8 overflow-hidden bg-gray-800 bg-opacity-50 shadow-xl backdrop-filter backdrop-blur-xl rounded-2xl"
-          >
-            <h2 className="mb-6 text-3xl font-bold text-center text-transparent bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text">
-              Verify Your Email
-            </h2>
-            
-            <p className="mb-6 text-center text-gray-300">
-              Enter the 6-digit code sent to your email address
-            </p>
+              <p className="mb-6 text-center text-gray-300">
+                Enter the 6-digit code sent to your email address
+              </p>
 
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="flex justify-between">
-                {code.map((digit, index) => (
-                  <input
-                    key={index}
-                    ref={(el) => (inputRefs.current[index] = el)}
-                    type="text"
-                    maxLength="6"
-                    value={digit}
-                    onChange={(e) => handleChange(index, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(index, e)}
-                    className="w-12 h-12 text-2xl font-bold text-center text-white bg-gray-700 border-2 border-gray-600 rounded-lg focus:border-green-500 focus:outline-none"
-                  />
-                ))}
-              </div>
-              <motion.button
-                className="w-full px-4 py-3 mt-5 font-bold text-white transition duration-200 rounded-lg shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <Loader className="mx-auto size-6 animate-spin" />
-                ) : (
-                  "Verify Email"
-                )}
-              </motion.button>
-            </form>
-          </motion.div>
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                <div className="flex justify-between">
+                  {code.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={(el) => (inputRefs.current[index] = el)}
+                      type="text"
+                      maxLength="6"
+                      value={digit}
+                      onChange={(e) => handleChange(index, e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(index, e)}
+                      className="w-12 h-12 text-2xl font-bold text-center text-white bg-gray-700 border-2 border-gray-600 rounded-lg focus:border-green-500 focus:outline-none"
+                    />
+                  ))}
+                </div>
+                <motion.button
+                  className="w-full px-4 py-3 mt-5 font-bold text-white transition duration-200 rounded-lg shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader className="mx-auto size-6 animate-spin" />
+                  ) : (
+                    "Verify Email"
+                  )}
+                </motion.button>
+              </form>
+            </motion.div>
+          </div>
         </div>
       </main>
     );

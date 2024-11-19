@@ -5,19 +5,28 @@ import { useProductsStore } from "../../../../store/productsStore";
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useFetch from "../../../../shared/hooks/useFetch";
+import useProduct from "../../../../shared/hooks/useProduct";
 
 
 const UpdateProductsPage = () => {
   const {id} = useParams();
  
   const navigate = useNavigate();
-  const { data, setData, isFetchLoading } = useFetch("products", id, "product");
+  const { newProduct, setNewProduct, isFetchLoading } = useProduct(id);
  
 	const { productLoading, updateProduct, isUpdated, resetStore } = useProductsStore();
 	
 	const handleCreate = async () => {
-		await updateProduct(data, id)
-		setData(null);
+		await updateProduct(newProduct, id)
+		setNewProduct({
+      name: "",
+      description: "",
+      price: "",
+      category: "",
+      brand: "",
+      images: [],
+      quantity: "",
+    });
 	}
 
   useEffect(() => {
@@ -35,8 +44,8 @@ const UpdateProductsPage = () => {
           <ProductForm
             handleSubmit={handleCreate}
             productLoading={productLoading}
-            newProduct={data}
-            setNewProduct={setData}
+            newProduct={newProduct}
+            setNewProduct={setNewProduct}
             formLabel="Update Brand"
             submitLabel="Update Brand"
           />

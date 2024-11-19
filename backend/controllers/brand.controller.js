@@ -37,9 +37,9 @@ export const createBrand = async (req,res) => {
 export const getBrands = async (req,res) => {
     const brands = await Brand.find()
     
-    res.status(200).json({
+    return res.status(200).json({
         success: true,
-        message: "Brands created successfully",
+        message: "Brands fetched successfully",
         brands
     })
 }
@@ -58,7 +58,7 @@ export const getBrand = async (req,res) => {
       throw new ErrorHandler("Brand not found", 404);
     }
 
-    res.status(200).json({
+    return res.status(200).json({
         success: true,
         message: "Brand fetched successfully",
         brand

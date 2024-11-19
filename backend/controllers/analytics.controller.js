@@ -10,7 +10,7 @@ import User from "../models/user.model.js";
 export const getAnalytics = async (req, res) => {
     const analyticsData = await getAnalyticsData();
     const endDate = new Date();
-    const startDate = new Data(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
     const dailySalesData = await getDailySalesData(startDate, endDate);
 
     return res.status(200).json({
@@ -73,14 +73,14 @@ const getDailySalesData =  async (startDate, endDate) => {
         }
     ] */
 
-  const dateArray = getDatesInRange(startDate, endDate); // ["2024-08-18","2024-08-18", ....]
+  const dateArray = getDatesInRange(startDate, endDate); // ["2024-08-18","2024-08-19", ....]
 
   return dateArray.map(date => {
     const foundData = dailySalesData.find(item => item._id === date);
     return {
       date,
       sales: foundData?.sales || 0,
-      revenue: foundData?.revenue || 0,
+      revenue: parseFloat(foundData?.revenue.toFixed(2)) || 0,
     };
   })
 

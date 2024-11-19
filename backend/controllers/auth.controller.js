@@ -6,6 +6,7 @@ import { generateAccessTokens, generateTokens, setAccessTokenCookies, setCookies
 import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mail/email.js";
 import { OAuth2Client } from "google-auth-library";
 import { redis } from "../config/redis.config.js";
+import logger from "../logger/logger.js";
 
 /**
 *   @desc   Create new user
@@ -206,7 +207,7 @@ export const forgotPassword = async(req, res) => {
       next
     );
 
-    res.status(200).json({success: true, message: "Password reset link has been sent to your email"})
+    return res.status(200).json({success: true, message: "Password reset link has been sent to your email"})
 }
 
 
@@ -242,7 +243,7 @@ export const resetPassword = async(req, res) => {
       next
     );
 
-    res.status(200).json({success: true, message: "Password reset successful"})
+    return res.status(200).json({success: true, message: "Password reset successful"})
 }
 
 
@@ -252,8 +253,8 @@ export const googleOathRequest = async (req, res) => {
   res.header("Access-Control-Allow-Origin", process.env.CLIENT_URL);
   res.header("Access-Control-Allow-Credentials", "true");
   res.header("Referrer-Policy", "no-referrer-when-downgrade");
-
-  const redirectUrl = "http://127.0.0.1:8000/api/v1/auth/oauth";
+  
+  const redirectUrl = `${process.env.SERVER_URL}/auth/oauth`;
 
   const oAuth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
@@ -277,7 +278,7 @@ export const googleOAuth = async (req, res) => {
   const code = req.query.code;
   
   try {
-    const redirectUrl = "http://127.0.0.1:8000/api/v1/auth/oauth"
+    const redirectUrl = `${process.env.SERVER_URL}/auth/oauth`;
     const oAuth2Client = new OAuth2Client(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
@@ -321,7 +322,7 @@ export const googleOAuth = async (req, res) => {
          `${process.env.CLIENT_URL}/auth/oauth-success/${newUser.email}`
        );
   } catch (error) {
-    console.log(error)
+    logger.error(error)
     return res.status(303).redirect(`${process.env.CLIENT_URL}/auth/login`);
   }
 }

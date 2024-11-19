@@ -11,6 +11,7 @@ import { setUserCart } from "../utils/redis.util.js";
  */
 export const addToCart = async (req, res) => {
     const {productId} = req.body;
+    
     const id = req.userAuthId.toString();
     
     let cartItems = await redis.get(`cart:${id}`) ? JSON.parse(await redis.get(`cart:${id}`)) : []
@@ -51,23 +52,23 @@ export const fetchCartItems = async (req, res, ) => {
     if(cartItems.length > 0){
           //const products = await Product.find({ _id: { $in: orderItems } });
 
-        const products = await Product.find({ _id : {$in: cartItems } });
+        const products = await Product.find({ _id : {$in: cartItems } }).populate("category", "name").populate("brand", "name");
       
         const convertedCartItems = products.map(product => {
             const cartItem = cartItems.find(item => item._id.toString() === product._id.toString());
             
-            return { ...product.toJSON(), quantity: cartItem.boughtQty };
+            return { ...product.toJSON(), boughtQty: cartItem.boughtQty };
         }) 
         return res.status(200).json({
           success: true,
-          message: "Item added to cart",
+          message: "Cart Items Fetched",
           cart: convertedCartItems,
         });
     }
     
     return res.status(200).json({
       success: true,
-      message: "Item added to cart",
+      message: "Cart Items Fetched",
       cart: cartItems,
     });
 };
@@ -81,28 +82,28 @@ export const updateItemQty = async (req, res ) => {
     const id = req.userAuthId.toString();
 
     const productId = req.params.productId;
-    const { quantity } = req.body;
+    const { boughtQuantity } = req.body;
     
      const cartItems = JSON.parse(await redis.get(`cart:${id}`));
      
      const existingItem = cartItems.find((item) => item._id === productId);
     
     if(existingItem) {
-        if(quantity === 0) {
+        if(boughtQuantity === 0) {
             const filteredCart = cartItems.filter((item) => item._id !== productId);
             await setUserCart(id, filteredCart);
             return res.status(200).json({
               success: true,
-              message: "Item added to cart",
+              message: "Cart Item updated.",
               cart: filteredCart,
             });
         }
 
-        existingItem.boughtQty = parseInt(quantity);
+        existingItem.boughtQty = parseInt(boughtQuantity);
          await setUserCart(id, cartItems);
          return res.status(200).json({
            success: true,
-           message: "Item added to cart",
+           message: "Cart Item  updated.",
            cart: cartItems,
          });
     }else {
@@ -112,13 +113,13 @@ export const updateItemQty = async (req, res ) => {
 
 
 /**
- *   @desc   Remove product from or clear 
+ *   @desc   Remove product from or clear cart 
  *   @route  DELETE /api/v1/carts/
  *   @access Private
  */
 export const removeItemFromCart = async (req, res, ) => {
   const id = req.userAuthId.toString();
-  const { productId } = req.body;
+  const { productId } = req.params;
 
   if (!productId) {
     await redis.del(`cart:${id}`);
@@ -130,9 +131,10 @@ export const removeItemFromCart = async (req, res, ) => {
     );
     await setUserCart(id, filteredCart);
   }
-
+  
   return res.status(201).json({
     success: true,
     message: "Cart cleared successfully",
+    
   });
 };

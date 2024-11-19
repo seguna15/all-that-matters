@@ -36,6 +36,7 @@ const ProductForm = ({ formLabel, submitLabel, handleSubmit, productLoading, new
     
   }
 
+ 
   
     
   return (
@@ -103,11 +104,12 @@ const ProductForm = ({ formLabel, submitLabel, handleSubmit, productLoading, new
           }
         />
 
-       <Select
+        <Select
           title="Category"
           id="category"
           name="category"
           selectInstruction="Select a category"
+         
           newProduct={newProduct}
           setNewProduct={setNewProduct}
           data={categories}
@@ -118,10 +120,11 @@ const ProductForm = ({ formLabel, submitLabel, handleSubmit, productLoading, new
           id="brand"
           name="brand"
           selectInstruction="Select a brand"
+          
           newProduct={newProduct}
           setNewProduct={setNewProduct}
           data={brands}
-        /> 
+        />
 
         {/* upload images */}
         <ImageComponent

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import ErrorHandler from "../utils/ErrorHandler.util.js";
 
 const couponSchema = new mongoose.Schema(
     {
@@ -21,6 +22,14 @@ const couponSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        maxUsage: {
+            type: Number,
+            default: 1,
+        },
+        usageCount: {
+            type: Number,
+            default: 0,
+        },
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
@@ -35,7 +44,7 @@ const couponSchema = new mongoose.Schema(
 
 couponSchema.pre("validate", function (next) {
   if (this.expirationDate < Date.now()) {
-    next(new ErrorHandler("End date cannot be  less than today", 400));
+    next(new ErrorHandler("End date cannot be less than today", 400));
   }
 
   next();

@@ -36,6 +36,7 @@ const API_VERSION = process.env.API_VERSION
 
 app.use(`${API_VERSION}/uploads`, express.static("uploads/"));
 
+
 app.use(`${API_VERSION}/auth`, authRoute);
 app.use(`${API_VERSION}/users`, userRoute);
 app.use(`${API_VERSION}/products`, productRoute);
@@ -45,6 +46,13 @@ app.use(`${API_VERSION}/categories`, categoriesRoutes)
 app.use(`${API_VERSION}/brands`, brandsRoutes)
 app.use(`${API_VERSION}/orders`, orderRoute)
 app.use(`${API_VERSION}/analytics`, analyticsRoute)
+
+app.get(`${API_VERSION}/`, (req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: "Hello world!"
+  })
+})
 
 
 //err middleware

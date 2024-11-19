@@ -9,6 +9,8 @@ import {
   TrendingUp,
   Users,
   Layers3,
+  Home,
+  ZapOff,
 } from "lucide-react";
 
 export const SIDEBAR_ITEMS = [
@@ -48,12 +50,13 @@ export const SIDEBAR_ITEMS = [
     href: "/admin/users",
   },
   {
-    id: "sales",
-    name: "Sales",
-    icon: DollarSign,
-    color: "#10B981",
-    href: "/admin/sales",
+    id: "coupons",
+    name: "Coupons",
+    icon: ZapOff,
+    color: "#ffb703",
+    href: "/admin/coupons",
   },
+  
   {
     id: "orders",
     name: "Orders",
@@ -61,18 +64,36 @@ export const SIDEBAR_ITEMS = [
     color: "#F59E0B",
     href: "/admin/orders",
   },
+ 
+  
   {
-    id: "analytics",
-    name: "Analytics",
-    icon: TrendingUp,
-    color: "#3B82F6",
-    href: "/admin/analytics",
-  },
-  {
-    id: "setting",
-    name: "Settings",
-    icon: Settings,
-    color: "#6EE7B7",
-    href: "/admin/settings",
+    id: "home",
+    name: "Home",
+    icon: Home,
+    color: "#d00000",
+    href: "/",
   },
 ];
+
+ export const priceRange = [
+  { val: "1-1000", name: `\u{020A6}1 - \u{020A6}1 000` },
+  { val: "1000-10000", name: `\u{020A6}1,000- \u{020A6}10,000` },
+  { val: "10000-100000", name: `\u{020A6}10,000- \u{020A6}100,000` },
+  { val: "100000-1000000", name: `\u{020A6}100,000 - \u{020A6}1,000,000` },
+]; 
+
+
+
+export const quantityRange = [
+  { val: "0-10", name: `1 - 10` },
+  { val: "10-50", name: `10- 50` },
+  { val: "50-100", name: `50- 100` },
+  { val: "100-1000", name: `100 - 1000` },
+];
+
+export const orderStatus = [
+  {value: "pending", label: "Pending"},
+  {value: "processed", label: "Processed"},
+  {value: "shipped", label: "Shipped"},
+  {value: "delivered", label: "Delivered"},
+]

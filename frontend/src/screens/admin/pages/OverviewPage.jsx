@@ -1,40 +1,139 @@
-import { BarChart2, ShoppingBag, Users, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
+import { Users, Package, ShoppingCart, DollarSign } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { apiClient } from "../../../api";
 import Header from "../components/common/Header";
-import StatCard from "../components/common/StatCard";
-import SalesOverviewChart from "../components/overview/SalesOverviewChart";
-import CategoryDistributionChart from "../components/overview/CategoryDistributionChart";
-import SalesChannelChart from "../components/overview/SalesChannelChart";
 
 const OverviewPage = () => {
-	return (
-		<div className='flex-1 overflow-auto relative z-10'>
-			<Header title='Overview' />
+  const [analyticsData, setAnalyticsData] = useState({
+    users: 0,
+    products: 0,
+    totalSales: 0,
+    totalRevenue: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [dailySalesData, setDailySalesData] = useState([]);
 
-			<main className='max-w-7xl mx-auto py-6 px-4 lg:px-8'>
-				{/* STATS */}
-				<motion.div
-					className='grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8'
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 1 }}
-				>
-					<StatCard name='Total Sales' icon={Zap} value='$12,345' color='#6366F1' />
-					<StatCard name='New Users' icon={Users} value='1,234' color='#8B5CF6' />
-					<StatCard name='Total Products' icon={ShoppingBag} value='567' color='#EC4899' />
-					<StatCard name='Conversion Rate' icon={BarChart2} value='12.5%' color='#10B981' />
-				</motion.div>
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      try {
+        const response = await apiClient.get("/analytics");
+        console.log(response)
+        setAnalyticsData(response.data.analyticsData);
+        setDailySalesData(response.data.dailySalesData);
+      } catch (error) {
+        console.error("Error fetching analytics data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-				{/* CHARTS */}
+    fetchAnalyticsData();
+  }, []);
 
-				<div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
-					<SalesOverviewChart />
-					<CategoryDistributionChart />
-					<SalesChannelChart />
-				</div>
-			</main>
-		</div>
-	);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="relative z-10 flex-1 overflow-auto">
+      <Header title="Overview" />
+
+      <main className="px-4 py-6 mx-auto max-w-7xl lg:px-8">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
+            <AnalyticsCard
+              title="Total Users"
+              value={analyticsData.users.toLocaleString()}
+              icon={Users}
+              color="from-emerald-500 to-teal-700"
+            />
+            <AnalyticsCard
+              title="Total Products"
+              value={analyticsData.products.toLocaleString()}
+              icon={Package}
+              color="from-emerald-500 to-green-700"
+            />
+            <AnalyticsCard
+              title="Total Sales"
+              value={analyticsData.totalSales.toLocaleString()}
+              icon={ShoppingCart}
+              color="from-emerald-500 to-cyan-700"
+            />
+            <AnalyticsCard
+              title="Total Revenue"
+              value={`\u20A6\ ${analyticsData.totalRevenue.toFixed(2)}`}
+              icon={DollarSign}
+              color="from-emerald-500 to-lime-700"
+            />
+          </div>
+          <motion.div
+            className="p-6 rounded-lg shadow-lg bg-gray-800/60"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+          >
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={dailySalesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" stroke="#D1D5DB" />
+                <YAxis yAxisId="left" stroke="#D1D5DB" />
+                <YAxis yAxisId="right" orientation="right" stroke="#D1D5DB" />
+                <Tooltip />
+                <Legend />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="sales"
+                  stroke="#10B981"
+                  activeDot={{ r: 8 }}
+                  name="Sales"
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#3B82F6"
+                  activeDot={{ r: 8 }}
+                  name="Revenue"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </motion.div>
+        </div>
+      </main>
+    </div>
+  );
 };
 export default OverviewPage;
+
+const AnalyticsCard = ({ title, value, icon: Icon, color }) => (
+  <motion.div
+    className={`bg-gray-800 rounded-lg p-6 shadow-lg overflow-hidden relative ${color}`}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+  >
+    <div className="flex items-center justify-between">
+      <div className="z-10">
+        <p className="mb-1 text-sm font-semibold text-emerald-300">{title}</p>
+        <h3 className="text-3xl font-bold text-white">{value}</h3>
+      </div>
+    </div>
+    <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-emerald-900 opacity-30" />
+    <div className="absolute opacity-50 -bottom-4 -right-4 text-emerald-800">
+      <Icon className="w-32 h-32" />
+    </div>
+  </motion.div>
+);
