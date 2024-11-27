@@ -10,6 +10,7 @@ export default function useProduct(id) {
       price: "",
       category: "",
       brand: "",
+      unit: "",
       images: [],
       quantity: "",
     });
@@ -26,6 +27,7 @@ export default function useProduct(id) {
           price:  data?.product?.price,
           category:  data?.product?.category?._id,
           brand:  data?.product?.brand?._id,
+          unit: data?.product?.unit,
           images: [],
           quantity:  data?.product?.quantity,
         });

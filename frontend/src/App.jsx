@@ -42,6 +42,9 @@ import AdminProductDetails from './screens/admin/pages/products/AdminProductDeta
 import OrderDetailsPage from './screens/admin/pages/orders/OrderDetails.page'
 import Orders from './screens/user/Orders'
 import CustomerOrderDetails from './screens/user/CustomerOrderDetails'
+import UnitsPage from './screens/admin/pages/units/UnitsPage'
+import AddUnitPage from './screens/admin/pages/units/AddUnitPage'
+import UpdateUnitPage from './screens/admin/pages/units/UpdateUnitPage'
 
 
 function App() {
@@ -282,6 +285,31 @@ function App() {
             element={
               <AdminRoute>
                 <UpdateBrandPage />
+              </AdminRoute>
+            }
+          />
+
+          <Route
+            path="units"
+            element={
+              <AdminRoute>
+                <UnitsPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="add-unit"
+            element={
+              <AdminRoute>
+                <AddUnitPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="edit-unit/:id"
+            element={
+              <AdminRoute>
+                <UpdateUnitPage />
               </AdminRoute>
             }
           />

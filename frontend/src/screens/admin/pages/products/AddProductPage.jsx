@@ -14,10 +14,12 @@ const AddProductsPage = () => {
       price: "",
       category: "",
       brand: "",
+      unit: "",
       images: [],
       quantity: ""
   })
 
+  
 
 	const handleCreate = async () => {
 		await createProduct(newProduct)
@@ -27,6 +29,7 @@ const AddProductsPage = () => {
 			price: "",
 			category: "",
       brand: "",
+      unit: "",
 			images: [],
 			quantity: "",
 		});
@@ -49,8 +52,8 @@ const AddProductsPage = () => {
           productLoading={isLoading}
           newProduct={newProduct}
           setNewProduct={setNewProduct}
-          formLabel="Add New Brand"
-          submitLabel="Add Brand"
+          formLabel="Add New Product"
+          submitLabel="Add Product"
         />
       </main>
     </div>

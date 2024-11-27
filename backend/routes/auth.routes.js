@@ -7,9 +7,7 @@ import {
   verifyEmail,
   forgotPassword,
   resetPassword,
-  googleOathRequest,
-  googleOAuth,
-  onOauthSuccess,
+
 } from "../controllers/auth.controller.js";
 import catchAsyncError from "../middlewares/catchAsyncError.middleware.js";
 
@@ -23,9 +21,9 @@ authRoute
   .post("/refresh", catchAsyncError(refresh))
   .post("/forgot-password", catchAsyncError(forgotPassword))
   .post("/reset-password/:token", catchAsyncError(resetPassword))
-  .post("/google-request", catchAsyncError(googleOathRequest))
+  /* .post("/google-request", catchAsyncError(googleOathRequest))
   .get("/oauth", catchAsyncError(googleOAuth))
-  .post("/google-auth-successful", catchAsyncError(onOauthSuccess))
+  .post("/google-auth-successful", catchAsyncError(onOauthSuccess)) */
   
 
 export default authRoute;

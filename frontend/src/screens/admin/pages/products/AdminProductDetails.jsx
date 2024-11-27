@@ -71,7 +71,7 @@ const AdminProductDetails = () => {
                   &#8358;{product?.price?.toFixed(2)}
                 </h2>
                 <h3 className="text-gray-300 text-md">
-                  {product?.quantity} items in stock
+                  {product?.quantity} {product?.unit}(s) items in stock
                 </h3>
                 
               </div>

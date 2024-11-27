@@ -8,9 +8,10 @@ const globalErrHandler = (err, req, res, next) => {
   const statusCode = err?.statusCode ? err?.statusCode : 500;
   const message = err?.message ? err?.message : "Oops something went wrong";
 
-  
+  console.log(stack)
+  console.log(message)
   logger.error(message)
-  return res.status(statusCode).json({
+  res.status(statusCode).json({
     success: false,
     stack,
     message,

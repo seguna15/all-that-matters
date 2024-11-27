@@ -5,19 +5,22 @@ import { FormInput, Select, ImageComponent } from '../../../../components'
 import { imagesValidator } from '../../../../shared/validators'
 import { Loader } from 'lucide-react'
 import { useBrandsStore } from '../../../../store/brandsStore'
+import { useUnitsStore } from '../../../../store/unitsStore'
 
 const ProductForm = ({ formLabel, submitLabel, handleSubmit, productLoading, newProduct, setNewProduct}) => {
     
 
     const [fileErrs, setFileErrs] = useState([])
     const {categories, loadCategories} = useCategoriesStore();
+    const {units, loadUnits} = useUnitsStore();
     const {brands, loadBrands} = useBrandsStore()
     
 
     useEffect(() => {
         loadCategories();
-        loadBrands()
-    },[loadCategories, loadBrands])
+        loadBrands();
+        loadUnits();
+    },[loadCategories, loadBrands, loadUnits])
     
     const onSubmitHandler = (e) => {
         e.preventDefault()
@@ -120,10 +123,19 @@ const ProductForm = ({ formLabel, submitLabel, handleSubmit, productLoading, new
           id="brand"
           name="brand"
           selectInstruction="Select a brand"
-          
           newProduct={newProduct}
           setNewProduct={setNewProduct}
           data={brands}
+        />
+
+        <Select
+          title="Unit"
+          id="unit"
+          name="unit"
+          selectInstruction="Select a unit"
+          newProduct={newProduct}
+          setNewProduct={setNewProduct}
+          data={units}
         />
 
         {/* upload images */}

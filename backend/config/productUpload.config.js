@@ -35,9 +35,9 @@ const fileFilter = (req, file, cb) =>  {
     }
   }
   const onError = (err, next) => {
+    console.log(err)
     logger.error(err)
-   
-    next(new ErrorHandler(err, 400));
+    next(err);
   }
   
 // Init multer storage engine

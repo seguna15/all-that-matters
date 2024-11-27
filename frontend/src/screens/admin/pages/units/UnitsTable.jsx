@@ -2,18 +2,18 @@ import { motion } from "framer-motion";
 import { Edit, Eye, Search, Trash2 } from "lucide-react";
 import {  useState } from "react";
 import { Link } from "react-router-dom";
-import { useBrandsStore } from "../../../../store/brandsStore";
+import { useUnitsStore } from "../../../../store/unitsStore";
 import { Spinner } from "../../../../components";
 
 
-const BrandsTable = () => {
+const UnitsTable = () => {
 	const [searchTerm, setSearchTerm] = useState("");
-  const { filteredBrands, isLoading, /*toggleFeatured,*/ filterBrand } = useBrandsStore();
+  const { filteredUnits, isLoading, /*toggleFeatured,*/ filterUnit } = useUnitsStore();
 
 	const handleSearch = async (e) => {
 		const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-		filterBrand(term);
+		filterUnit(term);
 	}; 
 
 	return (
@@ -24,13 +24,13 @@ const BrandsTable = () => {
       transition={{ delay: 0.2 }}
     >
       <div className="flex flex-col items-center justify-between mb-6 md:flex-row">
-        <h2 className="text-xl font-semibold text-gray-100">Brands List{`[${filteredBrands.length}]`}</h2>
+        <h2 className="text-xl font-semibold text-gray-100">Units List{`[${filteredUnits.length}]`}</h2>
         <Link
-          to={"/admin/add-brand"}
+          to={"/admin/add-unit"}
           className="px-3 py-1.5 text-sm font-bold text-white transition duration-200 rounded-lg shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 focus:scale-105"
           
         >
-          Add Brand
+          Add Unit
         </Link>
         <div className="relative">
           <input
@@ -55,7 +55,7 @@ const BrandsTable = () => {
                   Name
                 </th>
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
-                  Brand Items
+                  Date Created
                 </th>
                 
                 <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-400 uppercase">
@@ -64,32 +64,32 @@ const BrandsTable = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
-              {filteredBrands?.map((brand) => (
+              {filteredUnits?.map((unit) => (
                 <motion.tr
-                  key={brand?._id}
+                  key={unit?._id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                 >
                   <td className="flex items-center gap-2 px-6 py-4 text-sm font-medium text-gray-100 capitalize whitespace-nowrap">
                     
-                    {brand?.name}
+                    {unit?.name}
                   </td>
 
                   <td className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap">
-                    {brand?.products?.length}
+                    {new Date(unit?.createdAt)?.toLocaleDateString()}
                   </td> 
 
                   <td className="px-6 py-4 text-sm text-gray-300 whitespace-nowrap">
                    
                     <Link
-                      to={`/admin/edit-brand/${brand._id}`}
+                      to={`/admin/edit-unit/${unit._id}`}
                       key="fiuwei"
                       className="inline-flex mr-2 text-indigo-400 hover:text-indigo-300"
                     >
                       <Edit size={18} />
                     </Link>
-                    {/* <button
+                   {/*  <button
                       key="sasp"
                       className="text-red-400 hover:text-red-300"
                     >
@@ -105,4 +105,4 @@ const BrandsTable = () => {
     </motion.div>
   );
 };
-export default BrandsTable;
+export default UnitsTable;

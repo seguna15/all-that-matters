@@ -27,20 +27,24 @@ export const useProductsStore = create((set, get) => ({
   },
 
   createProduct: async (payload) => {
-    const { name, description, category, brand, price, quantity, images } =
+    const { name, description, category, brand, unit, price, quantity, images } =
       payload;
+  
     const formData = new FormData();
-
+    
     formData.append("name", name);
     formData.append("description", description);
     formData.append("category", category);
     formData.append("brand", brand);
+    formData.append("unit", unit);
     formData.append("price", price);
     formData.append("quantity", quantity);
 
     images.forEach((image) => {
       formData.append("files", image);
     });
+
+    
     set({ isLoading: true });
     try {
       const response = await apiClient.post("/products", formData);
@@ -49,18 +53,19 @@ export const useProductsStore = create((set, get) => ({
         isAdded: true,
         isLoading: false,
       });
-      toast.success(response.data.message);
+      toast.success(response?.data?.message);
+      return;
     } catch (error) {
       console.log(error);
       set({ isLoading: false });
       toast.error(
-        error.response.data.message || "Oops we could not fetch categories"
+        error?.response?.data?.message || "Oops we could not create product"
       );
     }
   },
 
   updateProduct: async (payload, id) => {
-    const { name, description, category, brand, price, quantity, images } =
+    const { name, description, category, brand, unit, price, quantity, images } =
       payload;
     const formData = new FormData();
 
@@ -68,6 +73,7 @@ export const useProductsStore = create((set, get) => ({
     formData.append("description", description);
     formData.append("category", category);
     formData.append("brand", brand);
+    formData.append("unit", unit);
     formData.append("price", price);
     formData.append("quantity", quantity);
 
@@ -83,11 +89,12 @@ export const useProductsStore = create((set, get) => ({
         isLoading: false,
       });
       toast.success(response.data.message);
+      return;
     } catch (error) {
       console.log(error);
       set({ isLoading: false });
       toast.error(
-        error.response.data.message || "Oops we could not fetch categories"
+        error?.response?.data?.message || "Oops we could not update product"
       );
     }
   },

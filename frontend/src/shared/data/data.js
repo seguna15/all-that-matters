@@ -11,6 +11,7 @@ import {
   Layers3,
   Home,
   ZapOff,
+  Scale,
 } from "lucide-react";
 
 export const SIDEBAR_ITEMS = [
@@ -56,7 +57,7 @@ export const SIDEBAR_ITEMS = [
     color: "#ffb703",
     href: "/admin/coupons",
   },
-  
+
   {
     id: "orders",
     name: "Orders",
@@ -64,8 +65,15 @@ export const SIDEBAR_ITEMS = [
     color: "#F59E0B",
     href: "/admin/orders",
   },
- 
-  
+
+  {
+    id: "units",
+    name: "Units",
+    icon: Scale,
+    color: "#00b4d8",
+    href: "/admin/units",
+  },
+
   {
     id: "home",
     name: "Home",

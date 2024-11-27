@@ -36,16 +36,16 @@ export const useCategoriesStore = create((set, get) => ({
     try {
       const response = await apiClient.post("/categories", formData);
       set({
-        category: response.data.category,
+        category: response?.data?.category,
         isLoading: false,
         isAdded: true,
       });
-      toast.success(response.data.message);
+      toast.success(response?.data?.message || "Category created");
     } catch (error) {
       console.log(error);
       set({ isLoading: false });
       toast(
-        error.response.data.message || "Oops we could not fetch categories"
+        error?.response?.data?.message || "Oops we could not fetch categories"
       );
     }
   },
@@ -68,12 +68,12 @@ export const useCategoriesStore = create((set, get) => ({
         isLoading: false,
         isUpdated: true,
       });
-      toast.success(response.data.message);
+      toast.success(response?.data?.message);
     } catch (error) {
       console.log(error);
       set({ isLoading: false });
       toast(
-        error.response.data.message || "Oops we could not fetch categories"
+        error?.response?.data?.message || "Oops we could not fetch categories"
       );
     }
   },

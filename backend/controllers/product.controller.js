@@ -1,7 +1,9 @@
 import { redis } from "../config/redis.config.js";
-import Brand from "../models/brand.model.js";
+import logger from "../logger/logger.js";
+import Brand from "../models/Brand.model.js";
 import Category from "../models/category.model.js";
 import Product from "../models/product.model.js"
+import Unit from "../models/unit.model.js";
 import {deleteImages} from "../utils/deleteImage.util.js";
 import ErrorHandler from "../utils/ErrorHandler.util.js"
 
@@ -190,50 +192,59 @@ export const getProductsByCategory = async (req, res) => {
 *   @access Private/Admin
 */
 export const createProduct = async (req, res) => {
+  try {
     const convertedImages = req.files.map((file) => file.path);
 
-    if(convertedImages.length < 1) {
-        throw new ErrorHandler("Please upload at least one image", 400)
+    if (convertedImages.length < 1) {
+      throw new ErrorHandler("Please upload at least one image", 400);
     }
 
-    const {name, description, price, quantity, category, brand} = req.body;
-    
-    const productExist  = await Product.findOne({name: name.toLowerCase()});
+    const { name, description, price, quantity, category, brand, unit } =
+      req.body;
 
-    if(productExist){
-        await deleteImages(convertedImages)
-        throw new ErrorHandler("Product already exist", 409);
+    const productExist = await Product.findOne({ name: name.toLowerCase() });
+
+    if (productExist) {
+      await deleteImages(convertedImages);
+      throw new ErrorHandler("Product already exist", 409);
     }
 
-    const categoryExist = await Category.findById(category) 
+    const categoryExist = await Category.findById(category);
 
-    if(!categoryExist){
-        await deleteImages(convertedImages);
-        throw new ErrorHandler("Category not found", 404);
+    if (!categoryExist) {
+      await deleteImages(convertedImages);
+      throw new ErrorHandler("Category not found", 404);
     }
 
-    const brandExist = await Brand.findById(brand) 
+    const brandExist = await Brand.findById(brand);
 
-    if(!brandExist){
-        await deleteImages(convertedImages);
-        throw new ErrorHandler("Brand not found", 404);
+    if (!brandExist) {
+      await deleteImages(convertedImages);
+      throw new ErrorHandler("Brand not found", 404);
+    }
+
+    const unitExist = await Unit.findById(unit);
+
+    if (!unitExist) {
+      await deleteImages(convertedImages);
+      throw new ErrorHandler("Unit not found", 404);
     }
 
     const product = await Product.create({
-        name,
-        description,
-        price,
-        quantity,
-        images: convertedImages,
-        category,
-        brand
-    })
+      name,
+      description,
+      price,
+      quantity,
+      images: convertedImages,
+      category,
+      brand,
+      unit,
+    });
 
-    if(!product) {
-        await deleteImages(convertedImages);
-        throw new ErrorHandler("Product not created", 400)
+    if (!product) {
+      await deleteImages(convertedImages);
+      throw new ErrorHandler("Product not created", 400);
     }
-
 
     categoryExist.products.push(product._id);
     await categoryExist.save();
@@ -242,10 +253,16 @@ export const createProduct = async (req, res) => {
     await brandExist.save();
 
     return res.status(201).json({
-        success: true,
-        message: "Product created successfully",
-        product
-    })
+      success: true,
+      message: "Product created successfully",
+      product,
+    });
+  } catch (error) {
+    console.log(error);
+    logger.error(error)
+    throw new ErrorHandler("Something went wrong", 404)
+  }
+    
 }
 
 /**
@@ -259,7 +276,7 @@ export const updateProduct = async (req, res) => {
   const convertedImages =
     req?.files?.length > 0 ? req?.files?.map((file) => file?.path) : null;
 
-  const { name, description, price, quantity, category, brand } = req.body;
+  const { name, description, price, quantity, category, brand, unit } = req.body;
 
   const categoryExist = await Category.findById(category);
 
@@ -273,6 +290,13 @@ export const updateProduct = async (req, res) => {
   if (!brandExist) {
     await deleteImages(convertedImages);
     throw new ErrorHandler("Brand not found", 404);
+  }
+
+  const unitExist = await Unit.findById(unit);
+
+  if (!unitExist) {
+    await deleteImages(convertedImages);
+    throw new ErrorHandler("Unit not found", 404);
   }
   const product = await Product.findById(id);
 
@@ -288,6 +312,7 @@ export const updateProduct = async (req, res) => {
         quantity,
         category,
         brand,
+        unit,
         images: convertedImages,
       },
       { new: true }
@@ -302,6 +327,7 @@ export const updateProduct = async (req, res) => {
         quantity,
         category,
         brand,
+        unit,
       },
       { new: true }
     )

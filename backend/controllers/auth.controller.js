@@ -246,7 +246,7 @@ export const resetPassword = async(req, res) => {
     return res.status(200).json({success: true, message: "Password reset successful"})
 }
 
-
+/* 
 //Google OAuth Request
 export const googleOathRequest = async (req, res) => {
   
@@ -332,6 +332,7 @@ export const googleOAuth = async (req, res) => {
 *   @route  POST /api/v1/auth/google-auth-successful/:email
 *   @access Public
 */
+/*
 export const onOauthSuccess = async (req,  res) => {
   
   const { email } = req.body;
@@ -360,4 +361,4 @@ export const onOauthSuccess = async (req,  res) => {
   }
 
  throw new ErrorHandler("Invalid login credential", 403);
-};
+}; */

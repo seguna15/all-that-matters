@@ -24,6 +24,7 @@ const UpdateProductsPage = () => {
       price: "",
       category: "",
       brand: "",
+      unit: "",
       images: [],
       quantity: "",
     });
@@ -46,8 +47,8 @@ const UpdateProductsPage = () => {
             productLoading={productLoading}
             newProduct={newProduct}
             setNewProduct={setNewProduct}
-            formLabel="Update Brand"
-            submitLabel="Update Brand"
+            formLabel="Update Product"
+            submitLabel="Update Product"
           />
         )}
       </main>

@@ -128,12 +128,12 @@ const CategoriesTable = () => {
                     >
                       <Edit size={18} />
                     </Link>
-                    <button
+                    {/* <button
                       key="sasp"
                       className="text-red-400 hover:text-red-300"
                     >
                       <Trash2 size={18} />
-                    </button>
+                    </button> */}
                   </td>
                 </motion.tr>
               ))}

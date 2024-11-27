@@ -19,12 +19,7 @@ const Login = () => {
   };
 
  
-  //google oauth
-  const handleGoogleLogin = async (e) => {
-    e.preventDefault();
-    await googleLogin();
-  }
-
+ 
 
   return (
     <main className="relative min-h-screen overflow-hidden text-white bg-gray-900 font-nunitoSans">
@@ -89,20 +84,7 @@ const Login = () => {
                   "Login"
                 )}
               </motion.button>
-              <motion.button
-                className="w-full px-4 py-3 mt-5 font-bold text-red-500 transition duration-200 rounded-lg shadow-lg bg-gradient-to-r from-green-200 to-red-200 hover:from-green-300 hover:to-red-300 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2 focus:ring-offset-gray-900"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={isGoogleLoading}
-                onClick={handleGoogleLogin}
-              >
-                {isGoogleLoading ? (
-                  <Loader className="mx-auto size-6 animate-spin" />
-                ) : (
-                  "Google Sign in"
-                )}
-              </motion.button>
+              
             </form>
             <div className="flex justify-center px-8 py-4 mt-6 bg-gray-900 bg-opacity-50">
               <p className="text-sm text-gray-300">

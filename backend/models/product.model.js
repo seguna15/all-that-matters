@@ -22,6 +22,11 @@ const productSchema = new mongoose.Schema(
       ref: "Brand",
       required: true,
     },
+    unit: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Unit",
+      required: true,
+    },  
     price: {
       type: Number,
       min: 0,
