@@ -75,7 +75,7 @@ const getDailySalesData =  async (startDate, endDate) => {
 
   const dateArray = getDatesInRange(startDate, endDate); // ["2024-08-18","2024-08-19", ....]
 
-  return dateArray.map(date => {
+  return dateArray?.map(date => {
     const foundData = dailySalesData.find(item => item._id === date);
     return {
       date,

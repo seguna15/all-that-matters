@@ -204,7 +204,7 @@ export const forgotPassword = async(req, res) => {
     await sendPasswordResetEmail(
       user.email,
       `${process.env.CLIENT_URL}/auth/reset-password/${resetToken}`, 
-      next
+      
     );
 
     return res.status(200).json({success: true, message: "Password reset link has been sent to your email"})
@@ -219,7 +219,7 @@ export const forgotPassword = async(req, res) => {
 export const resetPassword = async(req, res) => {
     const {token} = req.params;
     const {password} = req.body;
-    console.log(password)
+  
     const user = await User.findOne({
         resetPasswordToken: token, resetPasswordExpiresAt: {$gt: Date.now()}
     });
@@ -240,7 +240,6 @@ export const resetPassword = async(req, res) => {
     //send email
     await sendResetSuccessEmail(
       user.email,
-      next
     );
 
     return res.status(200).json({success: true, message: "Password reset successful"})

@@ -44,7 +44,7 @@ const ProductCarousel = ({
       </div>
       <div className="absolute left-0 right-0 bottom-4">
         <div className="flex items-center justify-center gap-2">
-          {slides.map((s, i) => (
+          {slides?.map((s, i) => (
             <div
               key={i}
               className={`transition-all w-1.5 h-1.5 bg-white rounded-full  ${

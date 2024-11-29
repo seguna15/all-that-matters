@@ -1,4 +1,4 @@
-import Brand from "../models/Brand.model.js";
+import Brand from "../models/brand.model.js";
 
 import ErrorHandler from "../utils/ErrorHandler.util.js";
 

@@ -7,6 +7,7 @@ const Footer = () => {
   const [footerCategoryOpen, setFooterCategoryOpen] = useState(false)
 
   const {categories} = useCategoriesStore();
+  const date = new Date()
   
   return (
     <div className="bg-gray-100">
@@ -77,7 +78,7 @@ const Footer = () => {
       </div>
       <div className="flex flex-col items-center max-w-screen-xl py-5 m-auto text-sm text-gray-800 border-t">
         <div className="flex flex-row mt-2 md:flex-auto md:flex-row-reverse"></div>
-        <div className="my-5">&copy; Copyright 2023. All Rights Reserved.</div>
+        <div className="my-5">&copy; Copyright {date.getFullYear()}. All Rights Reserved.</div>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ const NavLinks = ({open, setOpen}) => {
 
   return (
     <>
-      {links.map((link) => (
+      {links?.map((link) => (
         <div key={link?.name}>
           <div className="px-3 text-left md:cursor-pointer group">
             <h1
@@ -43,7 +43,7 @@ const NavLinks = ({open, setOpen}) => {
                     <div className="absolute w-4 h-4 mt-1 rotate-45 bg-white left-3"></div>
                   </div>
                   <div className="grid grid-cols-3 gap-10 p-5 bg-white">
-                    {categories.map((category) => (
+                    {categories?.map((category) => (
                       <div key={category?._id}>
                         <Link
                           key={category?._id}
@@ -67,7 +67,7 @@ const NavLinks = ({open, setOpen}) => {
           `}
           >
             {/* sublinks */}
-            {categories.map((category) => (
+            {categories?.map((category) => (
               <div key={category?._id}>
                 <div>
                   <Link
@@ -77,7 +77,7 @@ const NavLinks = ({open, setOpen}) => {
                     className="flex items-center justify-between py-4 pr-5 font-semibold capitalize pl-7 md:pr-0"
                     onClick={(e) => setOpen(!open)}
                   >
-                    {category.name}
+                    {category?.name}
                   </Link>
                 </div>
               </div>

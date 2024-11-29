@@ -29,8 +29,6 @@ export const sendVerificationEmail = async (recipientMail, verificationToken ) =
 }
 
 export const sendWelcomeEmail = async (recipientMail, recipientUsername, url ) => {
-
-
      try {
         
         const wordsToReplace = {
@@ -78,6 +76,7 @@ export const sendResetSuccessEmail = async (recipientMail) => {
        category: "Reset Success",
      });
    } catch (error) {
+      console.log(error)
       throw new ErrorHandler(`Email verification could not be sent: ${error}`, 500)
      
    }
@@ -116,4 +115,4 @@ export const sendInvoice = async (orderData, userEmail) => {
   } 
 }
 
-//sendInvoice();
+sendResetSuccessEmail("seguna15@gmail.com");

@@ -54,7 +54,7 @@ export const fetchCartItems = async (req, res, ) => {
 
         const products = await Product.find({ _id : {$in: cartItems } }).populate("category", "name").populate("brand", "name");
       
-        const convertedCartItems = products.map(product => {
+        const convertedCartItems = products?.map(product => {
             const cartItem = cartItems.find(item => item._id.toString() === product._id.toString());
             
             return { ...product.toJSON(), boughtQty: cartItem.boughtQty };

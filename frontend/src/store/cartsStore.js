@@ -20,7 +20,7 @@ export const useCartsStore = create((set, get) => ({
           (item) => item._id === product._id
         );
         const newCart = existingItem
-          ? prevState.cart.map((item) =>
+          ? prevState.cart?.map((item) =>
               item?._id === product?._id
                 ? { ...item, boughtQty: item.boughtQty + 1 }
                 : item
@@ -84,7 +84,7 @@ export const useCartsStore = create((set, get) => ({
       }
       await apiClient.patch(`/carts/${productId}`, { boughtQuantity });
       set((prevState) => ({
-        cart: prevState.cart.map((item) =>
+        cart: prevState?.cart?.map((item) =>
           item?._id === productId
             ? { ...item, boughtQty: boughtQuantity }
             : item

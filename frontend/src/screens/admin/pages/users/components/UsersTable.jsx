@@ -70,7 +70,7 @@ const UsersTable = ({users}) => {
               </thead>
 
               <tbody className="divide-y divide-gray-700">
-                {filteredUsers.map((user) => (
+                {filteredUsers?.map((user) => (
                   <motion.tr
                     key={user.id}
                     initial={{ opacity: 0 }}

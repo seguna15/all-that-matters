@@ -53,7 +53,7 @@ export const createCheckoutSession = async (req, res) => {
 
 
 
-    const convertedOrderItems = cartItems.map(item => {
+    const convertedOrderItems = cartItems?.map(item => {
         return {
              _id: item?._id,   price: item?.price?.toFixed(2), boughtQty: item.boughtQty
         }
@@ -415,11 +415,8 @@ export const  paystackWebHook = async (req, res) => {
 
                const saveProduct = await product.save();
 
-               await redis.set(
+               await redis.del(
                  `product:${saveProduct?._id}`,
-                 JSON.stringify(saveProduct),
-                 "EX",
-                 7 * 24 * 60 * 60
                );
              }); 
 

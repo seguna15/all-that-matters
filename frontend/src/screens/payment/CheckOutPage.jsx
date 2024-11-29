@@ -1,17 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import { Navbar } from "../../components";
 import Footer from "../../components/Footer";
 import { useCartsStore } from "../../store/cartsStore";
 import { motion } from "framer-motion";
-import CartItem from "./components/CartItem";
-import EmptyCartUI from "./components/EmptyCartUi";
+import EmptyCartUI from "./components/EmptyCartUI";
 import GiftCouponCard from "./components/GiftCouponCard";
-import PeopleAlsoBought from "./components/PeopleAlsoBought";
 import useScrollToTop from "../../shared/hooks/useScrollToTop";
 import OrderSummary from "./components/OrderSummary"
 import { countries} from "../../shared/data/countries";
-import { option } from "framer-motion/client";
-import { useAuthStore } from "../../store/authStore";
 import useShippingAddress from "../../shared/hooks/useShippingAddress";
 import ShippingAddress from "./components/ShippingAddress";
 import { isEmpty } from "../../shared/validators";

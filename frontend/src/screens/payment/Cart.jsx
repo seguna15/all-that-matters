@@ -4,7 +4,7 @@ import Footer from '../../components/Footer';
 import { useCartsStore } from '../../store/cartsStore';
 import { motion } from 'framer-motion';
 import CartItem from './components/CartItem';
-import EmptyCartUI from './components/EmptyCartUi';
+import EmptyCartUI from './components/EmptyCartUI';
 
 import PeopleAlsoBought from './components/PeopleAlsoBought';
 import useScrollToTop from '../../shared/hooks/useScrollToTop';

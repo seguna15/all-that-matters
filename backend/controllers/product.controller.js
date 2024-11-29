@@ -1,6 +1,6 @@
 import { redis } from "../config/redis.config.js";
 import logger from "../logger/logger.js";
-import Brand from "../models/Brand.model.js";
+import Brand from "../models/brand.model.js";
 import Category from "../models/category.model.js";
 import Product from "../models/product.model.js"
 import Unit from "../models/unit.model.js";
@@ -16,7 +16,9 @@ import ErrorHandler from "../utils/ErrorHandler.util.js"
 export const fetchAllProducts = async (req,res) => {
     const products = await Product.find()
     .populate('category', 'name')
-    .populate('brand', 'name');
+    .populate('brand', 'name')
+    .populate('unit', 'name')
+    
     return res.status(200).json({
         success: true,
         message: "Product fetched successfully",
@@ -193,7 +195,7 @@ export const getProductsByCategory = async (req, res) => {
 */
 export const createProduct = async (req, res) => {
   try {
-    const convertedImages = req.files.map((file) => file.path);
+    const convertedImages = req?.files?.map((file) => file.path);
 
     if (convertedImages.length < 1) {
       throw new ErrorHandler("Please upload at least one image", 400);

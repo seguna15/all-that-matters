@@ -95,7 +95,7 @@ export const useBrandsStore = create((set, get) => ({
       );
 
       set((prevBrands) => ({
-        brands: prevBrands.brands.map((brand) =>
+        brands: prevBrands?.brands?.map((brand) =>
           brand._id === brandId
             ? { ...brand, isFeatured: response.data.brand.isFeatured }
             : brand

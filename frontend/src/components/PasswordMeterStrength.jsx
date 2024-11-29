@@ -13,7 +13,7 @@ const PasswordCriteria = ({password}) => {
 
     return (
       <div className="mt-2 space-y-1">
-        {criteria.map((criterion) => (
+        {criteria?.map((criterion) => (
           <div key={criterion.label} className="flex items-center text-xs">
             {criterion.met ? (
               <Check className="mr-2 text-green-500 size-4" />
@@ -69,7 +69,7 @@ export const PasswordMeterStrength = ({password}) => {
         </div>
         <div className='flex space-x-1'>
             {
-                [...Array(4)].map((_, index) => (
+                [...Array(4)]?.map((_, index) => (
                     <div 
                         key={index} 
                         className={`h-1 w-1/4 rounded-full transition-colors duration-300
